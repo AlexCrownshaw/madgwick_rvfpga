@@ -8,14 +8,9 @@
 * Date: 13/04/2024
 */
 
-#define SPCR 0x80001100
-#define SPSR 0x80001108
-#define SPDR 0x80001110
-#define SPER 0x80001118
-#define SPCS 0x80001120
+#include "common.h"
+#include "SPI_HAL.h"
 
-#define READ_ADDR(dir) (*(volatile unsigned int*)dir)
-#define WRITE_ADDR(dir, value) { (*(volatile unsigned int*)dir) = (value); }
 
 int SPI_HAL_Init()
 {
@@ -28,7 +23,7 @@ int SPI_HAL_Init()
     WRITE_ADDR(SPER, 0x02); // Configure extension register: 00000010
 }
 
-unsigned int* SPI_HAL_sendGetData(unsigned char dataToSend, unsigned char *receivedData) 
+unsigned int* SPI_HAL_sendGetData(unsigned int dataToSend, unsigned int *receivedData) 
 {
     /* Send byte through SPI and get the peripheral data back */
 
