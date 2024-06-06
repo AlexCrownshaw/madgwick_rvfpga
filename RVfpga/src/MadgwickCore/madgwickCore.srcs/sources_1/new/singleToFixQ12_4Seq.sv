@@ -22,13 +22,13 @@
 
 module singleToFixQ12_4Seq(
     // debug outputs
-    output reg s_axis_a_tvalid,
-    output s_axis_a_tready,
-    output reg [31:0] s_axis_a_tdata,
-    output m_axis_result_tvalid,
-    output reg m_axis_result_tready,
-    output [15:0] m_axis_result_tdata,
-    output reg [1:0] debug_state,
+//    output reg s_axis_a_tvalid,
+//    output s_axis_a_tready,
+//    output reg [31:0] s_axis_a_tdata,
+//    output m_axis_result_tvalid,
+//    output reg m_axis_result_tready,
+//    output [15:0] m_axis_result_tdata,
+//    output reg [1:0] debug_state,
 
     input clk,
     input rst,
@@ -39,6 +39,13 @@ module singleToFixQ12_4Seq(
     output reg valid_out,
     input ready_out
     );
+    
+    reg s_axis_a_tvalid;
+    wire s_axis_a_tready;
+    reg [31:0] s_axis_a_tdata;
+    wire m_axis_result_tvalid;
+    reg m_axis_result_tready;
+    wire [15:0] m_axis_result_tdata;
     
     singleToFixQ12_4 single_to_fix (
       .aclk(clk),                                   // input wire aclk
@@ -59,14 +66,14 @@ module singleToFixQ12_4Seq(
     } state_t;
     state_t state, next_state;
     
-    // Update debug_state for monitoring
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            debug_state <= IDLE;
-        end else begin
-            debug_state <= state;
-        end
-    end
+//    // Update debug_state for monitoring
+//    always @(posedge clk or posedge rst) begin
+//        if (rst) begin
+//            debug_state <= IDLE;
+//        end else begin
+//            debug_state <= state;
+//        end
+//    end
     
     // Sequential logic for state transition
     always @(posedge clk or posedge rst) begin

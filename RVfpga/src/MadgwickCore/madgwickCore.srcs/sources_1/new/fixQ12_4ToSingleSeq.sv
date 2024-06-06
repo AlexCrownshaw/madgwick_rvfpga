@@ -19,37 +19,15 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
-`timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 24.05.2024 20:43:53
-// Design Name: 
-// Module Name: fixQ12_4ToSingleSeq
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 module fixQ12_4ToSingleSeq(
     // debug outputs
-    output reg s_axis_a_tvalid,
-    output s_axis_a_tready,
-    output reg [15:0] s_axis_a_tdata,
-    output m_axis_result_tvalid,
-    output reg m_axis_result_tready,
-    output [31:0] m_axis_result_tdata,
-    output reg [1:0] debug_state,
+//    output reg s_axis_a_tvalid,
+//    output s_axis_a_tready,
+//    output reg [15:0] s_axis_a_tdata,
+//    output m_axis_result_tvalid,
+//    output reg m_axis_result_tready,
+//    output [31:0] m_axis_result_tdata,
+//    output reg [1:0] debug_state,
 
     input clk,
     input rst,
@@ -60,6 +38,13 @@ module fixQ12_4ToSingleSeq(
     output reg valid_out,
     input ready_out
     );
+    
+    reg s_axis_a_tvalid;
+    wire s_axis_a_tready;
+    reg [15:0] s_axis_a_tdata;
+    wire m_axis_result_tvalid;
+    reg m_axis_result_tready;
+    wire [31:0] m_axis_result_tdata;
     
     fixQ12_4ToSingle fix_to_single (
       .aclk(clk),                                   // input wire aclk
@@ -80,14 +65,14 @@ module fixQ12_4ToSingleSeq(
     } state_t;
     state_t state, next_state;
     
-    // Update debug_state for monitoring
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            debug_state <= IDLE;
-        end else begin
-            debug_state <= state;
-        end
-    end
+//    // Update debug_state for monitoring
+//    always @(posedge clk or posedge rst) begin
+//        if (rst) begin
+//            debug_state <= IDLE;
+//        end else begin
+//            debug_state <= state;
+//        end
+//    end
     
     // Sequential logic for state transition
     always @(posedge clk or posedge rst) begin
@@ -152,9 +137,6 @@ module fixQ12_4ToSingleSeq(
                         s_axis_a_tvalid <= 1'b0;  // Deassert once data is accepted
                         m_axis_result_tready <= 1'b1;   // Set converter ready out flag
                     end
-//                    if (m_axis_result_tvalid) begin
-//                        m_axis_result_tready <= 1'b1;   // Set converter ready out flag
-//                    end
                 end
                 DONE: begin
                     if (ready_out) begin

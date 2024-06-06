@@ -31,24 +31,24 @@ module singleToFixQ12_4Seq_tb;
     wire [15:0] data_out;
     wire valid_out;
     reg ready_out;
-    wire [1:0] debug_state;
     
-    wire s_axis_a_tvalid;
-    wire s_axis_a_tready;
-    wire [31:0] s_axis_a_tdata;
-    wire m_axis_result_tvalid;
-    wire m_axis_result_tready;
-    wire[15:0] m_axis_result_tdata;
+//    wire s_axis_a_tvalid;
+//    wire s_axis_a_tready;
+//    wire [31:0] s_axis_a_tdata;
+//    wire m_axis_result_tvalid;
+//    wire m_axis_result_tready;
+//    wire[15:0] m_axis_result_tdata;
+//    wire [1:0] debug_state;
     
     // Instantiate the DUT (Device Under Test)
     singleToFixQ12_4Seq dut (
-        .s_axis_a_tvalid(s_axis_a_tvalid),
-        .s_axis_a_tready(s_axis_a_tready),
-        .s_axis_a_tdata(s_axis_a_tdata),
-        .m_axis_result_tvalid(m_axis_result_tvalid),
-        .m_axis_result_tready(m_axis_result_tready),
-        .m_axis_result_tdata(m_axis_result_tdata),
-        .debug_state(debug_state),
+//        .s_axis_a_tvalid(s_axis_a_tvalid),
+//        .s_axis_a_tready(s_axis_a_tready),
+//        .s_axis_a_tdata(s_axis_a_tdata),
+//        .m_axis_result_tvalid(m_axis_result_tvalid),
+//        .m_axis_result_tready(m_axis_result_tready),
+//        .m_axis_result_tdata(m_axis_result_tdata),
+//        .debug_state(debug_state),
         
         .clk(clk),
         .rst(rst),
