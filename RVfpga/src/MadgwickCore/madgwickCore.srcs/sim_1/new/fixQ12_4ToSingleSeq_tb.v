@@ -38,7 +38,7 @@ module fixQ12_4ToSingleSeq_tb;
 //    wire m_axis_result_tvalid;
 //    wire m_axis_result_tready;
 //    wire[31:0] m_axis_result_tdata;
-//    wire [1:0] debug_state;
+    wire [1:0] debug_state;
     
     // Instantiate the DUT (Device Under Test)
     fixQ12_4ToSingleSeq dut (
@@ -48,7 +48,7 @@ module fixQ12_4ToSingleSeq_tb;
 //        .m_axis_result_tvalid(m_axis_result_tvalid),
 //        .m_axis_result_tready(m_axis_result_tready),
 //        .m_axis_result_tdata(m_axis_result_tdata),
-//        .debug_state(debug_state),
+        .debug_state(debug_state),
         
         .clk(clk),
         .rst(rst),
@@ -73,42 +73,64 @@ module fixQ12_4ToSingleSeq_tb;
         data_in = 16'b0;
         valid_in = 1'b0;
         ready_out = 1'b0;
-        #20 rst = 0;
+        #25 rst = 0;
 
-        // First test value
-        wait (ready_in);
         data_in = 16'b0000000000010000; // 1.0
         valid_in = 1'b1;
-        ready_out <= 1'b1;
-        wait (valid_out);
-        valid_in = 1'b0;
-        ready_out <= 1'b0;
+        wait (valid_in && ready_in);
+        @ (posedge clk);
+        if (valid_in && ready_in) begin
+            valid_in = 1'b0;
+            ready_out <= 1'b1;
+        end 
+        wait (valid_out && ready_out);
+        @ (posedge clk);
+        if (valid_out && ready_out) begin
+            ready_out <= 1'b0;
+        end
         
-        wait (ready_in);
         data_in = 16'b0000000010100000; // 2.5
         valid_in = 1'b1;
-        ready_out <= 1'b1;
-        wait (valid_out);
-        valid_in = 1'b0;
-        ready_out <= 1'b0;
+        wait (valid_in && ready_in);
+        @ (posedge clk);
+        if (valid_in && ready_in) begin
+            valid_in = 1'b0;
+            ready_out <= 1'b1;
+        end 
+        wait (valid_out && ready_out);
+        @ (posedge clk);
+        if (valid_out && ready_out) begin
+            ready_out <= 1'b0;
+        end
         
-        wait (ready_in);
         data_in = 16'b0000000000000001; // 0.0625
         valid_in = 1'b1;
-        ready_out <= 1'b1;
-        wait (valid_out);
-        valid_in = 1'b0;
-        ready_out <= 1'b0;
+        wait (valid_in && ready_in);
+        @ (posedge clk);
+        if (valid_in && ready_in) begin
+            valid_in = 1'b0;
+            ready_out <= 1'b1;
+        end 
+        wait (valid_out && ready_out);
+        @ (posedge clk);
+        if (valid_out && ready_out) begin
+            ready_out <= 1'b0;
+        end
         
-        wait (ready_in);
         data_in = 16'b0000100101100100; // 150.25
         valid_in = 1'b1;
-        ready_out <= 1'b1;
-        wait (valid_out);
-        valid_in = 1'b0;
-        ready_out <= 1'b0;
+        wait (valid_in && ready_in);
+        @ (posedge clk);
+        if (valid_in && ready_in) begin
+            valid_in = 1'b0;
+            ready_out <= 1'b1;
+        end 
+        wait (valid_out && ready_out);
+        @ (posedge clk);
+        if (valid_out && ready_out) begin
+            ready_out <= 1'b0;
+        end
         
-        // Finish simulation
         #100;
         $finish;
     end

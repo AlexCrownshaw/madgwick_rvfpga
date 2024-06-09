@@ -27,7 +27,7 @@ module fixQ12_4ToSingleSeq(
 //    output m_axis_result_tvalid,
 //    output reg m_axis_result_tready,
 //    output [31:0] m_axis_result_tdata,
-//    output reg [1:0] debug_state,
+    output reg [1:0] debug_state,
 
     input clk,
     input rst,
@@ -65,14 +65,14 @@ module fixQ12_4ToSingleSeq(
     } state_t;
     state_t state, next_state;
     
-//    // Update debug_state for monitoring
-//    always @(posedge clk or posedge rst) begin
-//        if (rst) begin
-//            debug_state <= IDLE;
-//        end else begin
-//            debug_state <= state;
-//        end
-//    end
+    // Update debug_state for monitoring
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            debug_state <= IDLE;
+        end else begin
+            debug_state <= state;
+        end
+    end
     
     // Sequential logic for state transition
     always @(posedge clk or posedge rst) begin
@@ -103,7 +103,7 @@ module fixQ12_4ToSingleSeq(
                 end
             end
             DONE: begin
-                if (ready_out) begin
+                if (valid_out && ready_out) begin
                     next_state = IDLE;
                 end
             end
