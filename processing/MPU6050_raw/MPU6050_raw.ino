@@ -6,6 +6,9 @@
 
 Adafruit_MPU6050 mpu;
 
+unsigned long startTime, packetTime;
+sensors_event_t a, g, temp;
+
 void setup(void) {
   Serial.begin(115200);
   while (!Serial)
@@ -83,16 +86,19 @@ void setup(void) {
 
   Serial.println("");
   delay(3000);
+
+  startTime = millis();
 }
 
 void loop() {
 
   /* Get new sensor events with the readings */
-  sensors_event_t a, g, temp;
+  packetTime = millis() - startTime;
   mpu.getEvent(&a, &g, &temp);
 
   /* Print out the values */
-  
+  Serial.print(packetTime);
+  Serial.print("\t");
   Serial.print(a.acceleration.x);
   Serial.print("\t");
   Serial.print(a.acceleration.y);

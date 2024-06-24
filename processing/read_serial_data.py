@@ -10,7 +10,7 @@ NUM_DATA_POINTS = 10000
 
 
 def main():
-    df = pd.DataFrame(columns=["ax", "ay", "az", "wx", "wy", "wz"])
+    df = pd.DataFrame(columns=["t", "ax", "ay", "az", "wx", "wy", "wz"])
 
     try:
         ser = serial.Serial(PORT, BAUD, timeout=1)
@@ -23,7 +23,7 @@ def main():
     except serial.SerialException as e:
         print(f"Error: {e}")
 
-    df.to_csv(os.path.join(os.path.dirname(os.path.abspath(__file__)), "Data", "mpu6050_data", f"MPU6050_ESP32_{NUM_DATA_POINTS}_points.csv"), index=False)
+    df.to_csv(os.path.join(os.path.dirname(os.path.abspath(__file__)), "Data", "mpu6050_data", f"MPU6050_ESP32_{NUM_DATA_POINTS}_points.csv"), index=True)
 
 
 if __name__ == "__main__":
