@@ -60,6 +60,13 @@
   <FileSets Version="1" Minor="31">
     <FileSet Name="sources_1" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
       <Filter Type="Srcs"/>
+      <File Path="$PPRDIR/../RVfpga/src/SweRVolfSoC/SweRVEh1CoreComplex/include/common_defines.vh">
+        <FileInfo>
+          <Attr Name="IsGlobalInclude" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <File Path="$PPRDIR/../RVfpga/src/SweRVolfSoC/SweRVEh1CoreComplex/lib/beh_lib.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -1761,9 +1768,8 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../RVfpga/src/SweRVolfSoC/SweRVEh1CoreComplex/include/common_defines.vh">
+      <File Path="$PPRDIR/../RVfpga/src/SweRVolfSoC/BootROM/sw/boot_main.mem">
         <FileInfo>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
@@ -1772,6 +1778,8 @@
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="axi4_to_ahb"/>
         <Option Name="TopAutoSet" Val="TRUE"/>
+        <Option Name="VerilogDir" Val="$PPRDIR/../RVfpga/src/SweRVolfSoC/Interconnect/AxiInterconnect/pulp-platform.org__axi_0.25.0/include"/>
+        <Option Name="VerilogDir" Val="$PPRDIR/../RVfpga/src/OtherSources/pulp-platform.org__common_cells_1.20.0/src"/>
       </Config>
     </FileSet>
     <FileSet Name="constrs_1" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">
