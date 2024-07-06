@@ -86,13 +86,15 @@
 % Input data properties 
 INPUT_DATA_FILE_PATH = "processing\Data\mpu6050_data\MPU6050_ESP32_10000_points.csv";
 data_in = readtable(INPUT_DATA_FILE_PATH);
-% data_in = data_in(1:50, :);
+data_in = data_in(1:50, :);
 
 REF_DATA_PATH = "processing\Data\filtered_data\filtered_output_23-06-24_16-47-37.csv";
 data_out_ref = readtable(REF_DATA_PATH);
-% data_out_ref = data_out_ref(1:50, :);
+data_out_ref = data_out_ref(1:50, :);
 
+global ACC_INPUT_RANGE
 ACC_INPUT_RANGE = 2 * 9.81;
+global GYRO_INPUT_RANGE
 GYRO_INPUT_RANGE = 500 * pi/180;
 
 global ACC_INT_WIDTH
@@ -137,39 +139,6 @@ Q_INT_WIDTH = 2;
 Q_FRACT_WIDTH = 14;
 Q_WIDTH = Q_INT_WIDTH + Q_FRACT_WIDTH;
 
-% Input Data Analysis
-% Acceleration normal distribution
-x_pd = -ACC_INPUT_RANGE:1e-3:ACC_INPUT_RANGE;
-y_ax = pdf(fitdist(data_in.ax, "Normal"), x_pd);
-y_ay = pdf(fitdist(data_in.ay, "Normal"), x_pd);
-y_az = pdf(fitdist(data_in.az, "Normal"), x_pd);
-figure();
-hold on
-plot(x_pd, y_ax, DisplayName="x")
-plot(x_pd, y_ay, DisplayName="y")
-plot(x_pd, y_az, DisplayName="z")
-legend()
-xlabel("Acceleration [m/s]")
-ylabel("Probability")
-title("Normal Probability Distribution of Measured Acceleration")
-grid on
-
-% Gyro rate normal distribution
-x_pd = -GYRO_INPUT_RANGE:1e-3:GYRO_INPUT_RANGE;
-y_ax = pdf(fitdist(data_in.wx, "Normal"), x_pd);
-y_ay = pdf(fitdist(data_in.wy, "Normal"), x_pd);
-y_az = pdf(fitdist(data_in.wz, "Normal"), x_pd);
-figure();
-hold on
-plot(x_pd, y_ax, DisplayName="x")
-plot(x_pd, y_ay, DisplayName="y")
-plot(x_pd, y_az, DisplayName="z")
-legend()
-xlabel("Gyro rate [rad/s]")
-ylabel("Probability")
-title("Normal Probability Distribution of Measured Gyro Rates")
-grid on
-
 %% Constants
 global delta_t_fix
 delta_t = 0.003;
@@ -183,14 +152,10 @@ global beta_fix
 beta = sqrt(3/4) * gyro_meas_error_rad;
 beta_fix = fi(beta);
 
-%% Inputs 
-acc = [0, 0, 0];
-acc_fix = [fi(acc(1), 1, ACC_WIDTH, ACC_FRACT_WIDTH), fi(acc(2), 1, ACC_WIDTH, ACC_FRACT_WIDTH), fi(acc(3), 1, ACC_WIDTH, ACC_FRACT_WIDTH)];
-
-gyro = [0, 0, 0];
-gyro_fix = [fi(gyro(1), 1, GYRO_WIDTH, GYRO_FRACT_WIDTH), fi(gyro(2), 1, GYRO_WIDTH, GYRO_FRACT_WIDTH), fi(gyro(3), 1, GYRO_WIDTH, GYRO_FRACT_WIDTH)];
-
 %% Main
+
+% input_analysis(data_in);
+
 data_out = zeros(height(data_in), 4);
 q_fix = [fi(1, 1, Q_WIDTH, Q_FRACT_WIDTH), fi(0, 1, Q_WIDTH, Q_FRACT_WIDTH), fi(0, 1, Q_WIDTH, Q_FRACT_WIDTH), fi(0, 1, Q_WIDTH, Q_FRACT_WIDTH)];
 
@@ -213,6 +178,9 @@ for i = 1:height(data_in)
     data_out(i, :) = [q_w, q_x, q_y, q_z];
 end
 
+sim_data = array2table(data_out, "VariableNames", ["q_w", "q_x", "q_y", "q_z"]);
+writetable(sim_data, "processing/Data/MATLAB_sim_data/madgwick_sim_data.csv")
+
 create_header_file();
 
 %% Evaluate Error
@@ -222,6 +190,23 @@ q_y_mse = immse(table2array(data_out_ref(:, 9)),  data_out(:, 3));
 q_z_mse = immse(table2array(data_out_ref(:, 10)),  data_out(:, 4));
 
 q_mse = [q_w_mse, q_x_mse, q_y_mse, q_z_mse];
+
+figure(Position=[400 400 1100 400]);
+hold on
+plot(data_in.t, data_out_ref.q_w, DisplayName="q_w_ref", LineStyle="-", Color="b")
+plot(data_in.t, data_out(:, 1), DisplayName="q_w", LineStyle="--", Color="b")
+plot(data_in.t, data_out_ref.q_x, DisplayName="q_x_ref", LineStyle="-", Color="r")
+plot(data_in.t, data_out(:, 2), DisplayName="q_x", LineStyle="--", Color="r")
+plot(data_in.t, data_out_ref.q_y, DisplayName="q_y_ref", LineStyle="-", Color="y")
+plot(data_in.t, data_out(:, 3), DisplayName="q_y", LineStyle="--", Color="y")
+plot(data_in.t, data_out_ref.q_z, DisplayName="q_z_ref", LineStyle="-", Color="g")
+plot(data_in.t, data_out(:, 4), DisplayName="q_z", LineStyle="--", Color="g")
+xlabel("Time [ms]")
+ylabel("Quaternion Unit Vector Magnitudes")
+legend(Interpreter="none", Location="bestoutside")
+grid on
+
+% close all
 
 %% Fixed-Point Madgwick Computation Function
 function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
@@ -243,7 +228,33 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     global beta_fix
 
     % Global definitions
-
+    global Q_HALF_WIDTH
+    global Q_HALF_INT_WIDTH
+    global Q_HALF_FRACT_WIDTH
+    global Q_TWO_WIDTH
+    global Q_TWO_INT_WIDTH
+    global Q_TWO_FRACT_WIDTH
+    global Q_DOT_WIDTH
+    global Q_DOT_INT_WIDTH
+    global Q_DOT_FRACT_WIDTH
+    global J_11_24_WIDTH
+    global J_11_24_INT_WIDTH
+    global J_11_24_FRACT_WIDTH
+    global J_12_23_WIDTH
+    global J_12_23_INT_WIDTH
+    global J_12_23_FRACT_WIDTH
+    global J_13_22_WIDTH
+    global J_13_22_INT_WIDTH
+    global J_13_22_FRACT_WIDTH
+    global J_14_21_WIDTH
+    global J_14_21_INT_WIDTH
+    global J_14_21_FRACT_WIDTH
+    global J_32_WIDTH
+    global J_32_INT_WIDTH
+    global J_32_FRACT_WIDTH
+    global J_33_WIDTH
+    global J_33_INT_WIDTH
+    global J_33_FRACT_WIDTH
 
     % Expand inputs
     q_w_prev_fix = q_prev_fix(1);
@@ -269,6 +280,14 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     q_x_two_fix = q_x_prev_fix + q_x_prev_fix;
     q_y_two_fix = q_y_prev_fix + q_y_prev_fix;
 
+    % Compute Jacobian
+    j_11_24_fix = q_y_two_fix;  % J_11or24 = two_q_y
+    j_12_23_fix = q_z_prev_fix + q_z_prev_fix;  % J_12or23 = 2.0f * q_z (Arithmetic bit shift left in Verilog)
+    j_13_22_fix = q_w_two_fix;  % J_13or22 = two_q_w
+    j_14_21_fix = q_x_two_fix;  % J_14or21 = two_q_x
+    j_32_fix = j_14_21_fix + j_14_21_fix;    % J_32 = 2.0f * J_14or21; (Arithmetic bit shift left in Verilog)
+    j_33_fix = j_11_24_fix + j_11_24_fix;    % J_33 = 2.0f * J_11or24; (Arithmetic bit shift left in Verilog)
+
     % Normalise acceleration vector
     acc_mag_sqr_fix = acc_x_fix * acc_x_fix + acc_y_fix * acc_y_fix + acc_z_fix * acc_z_fix;   % compute magnitude squared
     acc_mag_sqr_fix_trun = fi(double(acc_mag_sqr_fix), 0, ACC_MAG_SQR_WIDTH, ACC_MAG_SQR_FRACT_WIDTH);  % Truncate to fastInvSqrtAccNorm word width
@@ -285,18 +304,16 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     acc_y_norm_fix_trunc = fi(acc_y_norm, 1, ACC_WIDTH, ACC_FRACT_WIDTH);
     acc_z_norm_fix_trunc = fi(acc_z_norm, 1, ACC_WIDTH, ACC_FRACT_WIDTH);
 
+     % Compute gyro quaternion derivative
+    q_dot_w_w_fix = -q_x_half_fix * gyro_x_fix - q_y_half_fix * gyro_y_fix - q_z_half_fix * gyro_z_fix;   % SEqDot_omega_1 = -half_q_x * w_x - half_q_y * w_y - half_q_z * w_z;
+    q_dot_w_x_fix = q_w_half_fix * gyro_x_fix + q_y_half_fix * gyro_z_fix - q_z_half_fix * gyro_y_fix; % SEqDot_omega_2 = half_q_w * w_x + half_q_y * w_z - half_q_z * w_y;
+    q_dot_w_y_fix = q_w_half_fix * gyro_y_fix - q_x_half_fix * gyro_z_fix + q_z_half_fix * gyro_x_fix; % SEqDot_omega_3 = half_q_w * w_y - half_q_x * w_z + half_q_z * w_x;
+    q_dot_w_z_fix = q_w_half_fix * gyro_z_fix + q_x_half_fix * gyro_y_fix - q_y_half_fix * gyro_x_fix; % SEqDot_omega_4 = half_q_w * w_z + half_q_x * w_y - half_q_y * w_x;
+
     % Compute Objective Function
     f_1_fix = q_x_two_fix * q_z_prev_fix - q_w_two_fix * q_y_prev_fix - acc_x_norm_fix_trunc;  %  f_1 = two_q_x * q_z - two_q_w * q_y - a_x;
     f_2_fix = q_w_two_fix * q_x_prev_fix + q_y_two_fix * q_z_prev_fix - acc_y_norm_fix_trunc;  % f_2 = two_q_w * q_x + two_q_y * q_z - a_y;
     f_3_fix = 1 - q_x_two_fix * q_x_prev_fix - q_y_two_fix * q_y_prev_fix - acc_z_norm_fix_trunc;   %f_3 = 1.0f - two_q_x * q_x - two_q_y * q_y - a_z
-
-    % Compute Jacobian
-    j_11_24_fix = q_y_two_fix;  % J_11or24 = two_q_y
-    j_12_23_fix = q_z_prev_fix + q_z_prev_fix;  % J_12or23 = 2.0f * q_z (Arithmetic bit shift left in Verilog)
-    j_13_22_fix = q_w_two_fix;  % J_13or22 = two_q_w
-    j_14_21_fix = q_x_two_fix;  % J_14or21 = two_q_x
-    j_32_fix = j_14_21_fix + j_14_21_fix;    % J_32 = 2.0f * J_14or21; (Arithmetic bit shift left in Verilog)
-    j_33_fix = j_11_24_fix + j_11_24_fix;    % J_33 = 2.0f * J_11or24; (Arithmetic bit shift left in Verilog)
 
     % Compute gyro error gradient
     q_hat_dot_w_fix = j_14_21_fix * f_2_fix - j_11_24_fix * f_1_fix;    % SEqHatDot_1 = J_14or21 * f_2 - J_11or24 * f_1;
@@ -312,12 +329,6 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     q_hat_dot_norm_x_fix = q_hat_dot_x_fix * q_hat_dot_mag_inv_fix;
     q_hat_dot_norm_y_fix = q_hat_dot_y_fix * q_hat_dot_mag_inv_fix;
     q_hat_dot_norm_z_fix = q_hat_dot_z_fix * q_hat_dot_mag_inv_fix;
-
-    % Compute gyro quaternion derivative
-    q_dot_w_w_fix = -q_x_half_fix * gyro_x_fix - q_y_half_fix * gyro_y_fix - q_z_half_fix * gyro_z_fix;   % SEqDot_omega_1 = -half_q_x * w_x - half_q_y * w_y - half_q_z * w_z;
-    q_dot_w_x_fix = q_w_half_fix * gyro_x_fix + q_y_half_fix * gyro_z_fix - q_z_half_fix * gyro_y_fix; % SEqDot_omega_2 = half_q_w * w_x + half_q_y * w_z - half_q_z * w_y;
-    q_dot_w_y_fix = q_w_half_fix * gyro_y_fix - q_x_half_fix * gyro_z_fix + q_z_half_fix * gyro_x_fix; % SEqDot_omega_3 = half_q_w * w_y - half_q_x * w_z + half_q_z * w_x;
-    q_dot_w_z_fix = q_w_half_fix * gyro_z_fix + q_x_half_fix * gyro_y_fix - q_y_half_fix * gyro_x_fix; % SEqDot_omega_4 = half_q_w * w_z + half_q_x * w_y - half_q_y * w_x;
 
     % Combine acceleration and gyro rate quaternion derivative estimates and integrate
     q_w_fix = q_w_prev_fix + (q_dot_w_w_fix - (beta_fix * q_hat_dot_norm_w_fix)) * delta_t_fix; % q_w += (SEqDot_omega_1 - (beta * SEqHatDot_1)) * deltat;
@@ -342,6 +353,34 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
 
     % Return as an array of fixed-point values
     q_norm_fix = [q_w_norm_fix_trun, q_x_norm_fix_trun, q_y_norm_fix_trun, q_z_norm_fix_trun];
+
+    Q_HALF_WIDTH = q_w_half_fix.WordLength;
+    Q_HALF_INT_WIDTH = Q_HALF_WIDTH - q_w_half_fix.FractionLength;
+    Q_HALF_FRACT_WIDTH = q_w_half_fix.FractionLength;
+    Q_TWO_WIDTH = q_w_two_fix.WordLength;
+    Q_TWO_INT_WIDTH = Q_TWO_WIDTH - q_w_two_fix.FractionLength;
+    Q_TWO_FRACT_WIDTH = q_w_two_fix.FractionLength;
+    Q_DOT_WIDTH = q_dot_w_w_fix.WordLength;
+    Q_DOT_INT_WIDTH = Q_DOT_WIDTH - q_dot_w_w_fix.FractionLength;
+    Q_DOT_FRACT_WIDTH = q_dot_w_w_fix.FractionLength;
+    J_11_24_WIDTH = j_11_24_fix.WordLength;
+    J_11_24_INT_WIDTH = J_11_24_WIDTH - j_11_24_fix.FractionLength; 
+    J_11_24_FRACT_WIDTH = j_11_24_fix.FractionLength;
+    J_12_23_WIDTH = j_12_23_fix.WordLength;
+    J_12_23_INT_WIDTH = J_12_23_WIDTH - j_12_23_fix.FractionLength; 
+    J_12_23_FRACT_WIDTH = j_12_23_fix.FractionLength; 
+    J_13_22_WIDTH = j_13_22_fix.WordLength;
+    J_13_22_INT_WIDTH = J_13_22_WIDTH - j_13_22_fix.FractionLength; 
+    J_13_22_FRACT_WIDTH = j_13_22_fix.FractionLength; 
+    J_14_21_WIDTH = j_14_21_fix.WordLength;
+    J_14_21_INT_WIDTH = J_14_21_WIDTH - j_14_21_fix.FractionLength; 
+    J_14_21_FRACT_WIDTH = j_14_21_fix.FractionLength; 
+    J_32_WIDTH = j_32_fix.WordLength;
+    J_32_INT_WIDTH = J_32_WIDTH - j_32_fix.FractionLength; 
+    J_32_FRACT_WIDTH = j_32_fix.FractionLength; 
+    J_33_WIDTH = j_33_fix.WordLength;
+    J_33_INT_WIDTH = J_33_WIDTH - j_33_fix.FractionLength; 
+    J_33_FRACT_WIDTH = j_33_fix.FractionLength; 
 
 end
 
@@ -382,30 +421,146 @@ end
 %% Verilog Header File Generation Function
 function [] = create_header_file()
 
+    global ACC_WIDTH
     global ACC_INT_WIDTH
     global ACC_FRACT_WIDTH
-    global ACC_MAG_SQR_FRACT_WIDTH
+    global GYRO_WIDTH
+    global GYRO_WIDTH
+    global GYRO_FRACT_WIDTH
+    global ACC_MAG_SQR_WIDTH
     global ACC_MAG_SQR_INT_WIDTH
-    global Q_HAT_DOT_MAG_SQR_FRACT_WIDTH
+    global ACC_MAG_SQR_FRACT_WIDTH
+    global Q_HAT_DOT_MAG_SQR_WIDTH
     global Q_HAT_DOT_MAG_SQR_INT_WIDTH
-    global Q_MAG_SQR_FRACT_WIDTH
+    global Q_HAT_DOT_MAG_SQR_FRACT_WIDTH
+    global Q_MAG_SQR_WIDTH        
     global Q_MAG_SQR_INT_WIDTH
-    global Q_FRACT_WIDTH
+    global Q_MAG_SQR_FRACT_WIDTH
+    global Q_WIDTH
     global Q_INT_WIDTH
+    global Q_FRACT_WIDTH
+    global Q_HALF_WIDTH
+    global Q_HALF_INT_WIDTH
+    global Q_HALF_FRACT_WIDTH
+    global Q_TWO_WIDTH
+    global Q_TWO_INT_WIDTH
+    global Q_TWO_FRACT_WIDTH
+    global Q_DOT_WIDTH
+    global Q_DOT_INT_WIDTH
+    global Q_DOT_FRACT_WIDTH
+    global J_11_24_WIDTH
+    global J_11_24_INT_WIDTH
+    global J_11_24_FRACT_WIDTH
+    global J_12_23_WIDTH
+    global J_12_23_INT_WIDTH
+    global J_12_23_FRACT_WIDTH
+    global J_13_22_WIDTH
+    global J_13_22_INT_WIDTH
+    global J_13_22_FRACT_WIDTH
+    global J_14_21_WIDTH
+    global J_14_21_INT_WIDTH
+    global J_14_21_FRACT_WIDTH
+    global J_32_WIDTH
+    global J_32_INT_WIDTH
+    global J_32_FRACT_WIDTH
+    global J_33_WIDTH
+    global J_33_INT_WIDTH
+    global J_33_FRACT_WIDTH
 
-    header_file = fopen("madgwick.vh", 'w');
-    fprintf(header_file, sprintf('`Define ACC_INT_WIDTH %d\n', ACC_INT_WIDTH));
-    fprintf(header_file, sprintf('`Define ACC_FRACT_WIDTH %d\n', ACC_FRACT_WIDTH));
-    fprintf(header_file, sprintf('`Define ACC_MAG_SQR_INT_WIDTH %d\n', ACC_MAG_SQR_INT_WIDTH));
-    fprintf(header_file, sprintf('`Define ACC_MAG_SQR_FRACT_WIDTH %d\n', ACC_MAG_SQR_FRACT_WIDTH));
-    fprintf(header_file, sprintf('`Define Q_HAT_DOT_MAG_SQR_INT_WIDTH %d\n', Q_HAT_DOT_MAG_SQR_INT_WIDTH));
-    fprintf(header_file, sprintf('`Define Q_HAT_DOT_MAG_SQR_FRACT_WIDTH %d\n', Q_HAT_DOT_MAG_SQR_FRACT_WIDTH));
-    fprintf(header_file, sprintf('`Define Q_MAG_SQR_INT_WIDTH %d\n', Q_MAG_SQR_INT_WIDTH));
-    fprintf(header_file, sprintf('`Define Q_MAG_SQR_FRACT_WIDTH %d\n', Q_MAG_SQR_FRACT_WIDTH));
-    fprintf(header_file, sprintf('`Define Q_INT_WIDTH %d\n', Q_INT_WIDTH));
-    fprintf(header_file, sprintf('`Define Q_FRACT_WIDTH %d\n', Q_FRACT_WIDTH));
+
+    defines = {
+        sprintf('`define ACC_WIDTH %d\n', ACC_WIDTH)
+        sprintf('`define ACC_INT_WIDTH %d\n', ACC_INT_WIDTH)
+        sprintf('`define ACC_FRACT_WIDTH %d\n', ACC_FRACT_WIDTH)
+        sprintf('`define GYRO_WIDTH %d\n', GYRO_WIDTH)
+        sprintf('`define GYRO_INT_WIDTH %d\n', GYRO_WIDTH)
+        sprintf('`define GYRO_FRACT_WIDTH %d\n', GYRO_FRACT_WIDTH)
+        sprintf('`define ACC_MAG_SQR_WIDTH %d\n', ACC_MAG_SQR_WIDTH)
+        sprintf('`define ACC_MAG_SQR_INT_WIDTH %d\n', ACC_MAG_SQR_INT_WIDTH)
+        sprintf('`define ACC_MAG_SQR_FRACT_WIDTH %d\n', ACC_MAG_SQR_FRACT_WIDTH)
+        sprintf('`define Q_HAT_DOT_MAG_SQR_WIDTH %d\n', Q_HAT_DOT_MAG_SQR_WIDTH)
+        sprintf('`define Q_HAT_DOT_MAG_SQR_INT_WIDTH %d\n', Q_HAT_DOT_MAG_SQR_INT_WIDTH)
+        sprintf('`define Q_HAT_DOT_MAG_SQR_FRACT_WIDTH %d\n', Q_HAT_DOT_MAG_SQR_FRACT_WIDTH)
+        sprintf('`define Q_MAG_SQR_WIDTH %d\n', Q_MAG_SQR_WIDTH)
+        sprintf('`define Q_MAG_SQR_INT_WIDTH %d\n', Q_MAG_SQR_INT_WIDTH)
+        sprintf('`define Q_MAG_SQR_FRACT_WIDTH %d\n', Q_MAG_SQR_FRACT_WIDTH)
+        sprintf('`define Q_WIDTH %d\n', Q_WIDTH)
+        sprintf('`define Q_INT_WIDTH %d\n', Q_INT_WIDTH)
+        sprintf('`define Q_FRACT_WIDTH %d\n', Q_FRACT_WIDTH)
+        sprintf('`define Q_HALF_WIDTH %d\n', Q_HALF_WIDTH)
+        sprintf('`define Q_HALF_INT_WIDTH %d\n', Q_HALF_INT_WIDTH)
+        sprintf('`define Q_HALF_FRACT_WIDTH %d\n', Q_HALF_FRACT_WIDTH)
+        sprintf('`define Q_TWO_WIDTH %d\n', Q_TWO_WIDTH)
+        sprintf('`define Q_TWO_INT_WIDTH %d\n', Q_TWO_INT_WIDTH)
+        sprintf('`define Q_TWO_FRACT_WIDTH %d\n', Q_TWO_FRACT_WIDTH)
+        sprintf('`define Q_DOT_WIDTH %d\n', Q_DOT_WIDTH)
+        sprintf('`define Q_DOT_INT_WIDTH %d\n', Q_DOT_INT_WIDTH)
+        sprintf('`define Q_DOT_FRACT_WIDTH %d\n', Q_DOT_FRACT_WIDTH)
+        sprintf('`define J_11_24_WIDTH %d\n', J_11_24_WIDTH)
+        sprintf('`define J_11_24_INT_WIDTH %d\n', J_11_24_INT_WIDTH)
+        sprintf('`define J_11_24_FRACT_WIDTH %d\n', J_11_24_FRACT_WIDTH)
+        sprintf('`define J_12_23_WIDTH %d\n', J_12_23_WIDTH)
+        sprintf('`define J_12_23_INT_WIDTH %d\n', J_12_23_INT_WIDTH)
+        sprintf('`define J_12_23_FRACT_WIDTH %d\n', J_12_23_FRACT_WIDTH)
+        sprintf('`define J_13_22_WIDTH %d\n', J_13_22_WIDTH)
+        sprintf('`define J_13_22_INT_WIDTH %d\n', J_13_22_INT_WIDTH)
+        sprintf('`define J_13_22_FRACT_WIDTH %d\n', J_13_22_FRACT_WIDTH)
+        sprintf('`define J_14_21_WIDTH %d\n', J_14_21_WIDTH)
+        sprintf('`define J_14_21_INT_WIDTH %d\n', J_14_21_INT_WIDTH)
+        sprintf('`define J_14_21_FRACT_WIDTH %d\n', J_14_21_FRACT_WIDTH)
+        sprintf('`define J_32_WIDTH %d\n', J_32_WIDTH)
+        sprintf('`define J_32_INT_WIDTH %d\n', J_32_INT_WIDTH)
+        sprintf('`define J_32_FRACT_WIDTH %d\n', J_32_FRACT_WIDTH)
+        sprintf('`define J_33_WIDTH %d\n', J_33_WIDTH)
+        sprintf('`define J_33_INT_WIDTH %d\n', J_33_INT_WIDTH)
+        sprintf('`define J_33_FRACT_WIDTH %d\n', J_33_FRACT_WIDTH)
+    };
+
+    header_file = fopen("RVfpga\src\SweRVolfSoC\Peripherals\attitude_sensor\madgwick_filter\madgwickDefines.vh", 'w');
+
+    for i = 1:length(defines)
+        fprintf(header_file, '%s', defines{i});
+    end
 
     fclose(header_file);
 
 end
 
+%% Input Data Analysis Function
+function [] = input_analysis(data_in)
+
+    global ACC_INPUT_RANGE
+    global GYRO_INPUT_RANGE
+
+    % Acceleration normal distribution
+    x_pd = -ACC_INPUT_RANGE:1e-3:ACC_INPUT_RANGE;
+    y_ax = pdf(fitdist(data_in.ax, "Normal"), x_pd);
+    y_ay = pdf(fitdist(data_in.ay, "Normal"), x_pd);
+    y_az = pdf(fitdist(data_in.az, "Normal"), x_pd);
+    figure();
+    hold on
+    plot(x_pd, y_ax, DisplayName="x")
+    plot(x_pd, y_ay, DisplayName="y")
+    plot(x_pd, y_az, DisplayName="z")
+    legend()
+    xlabel("Acceleration [m/s]")
+    ylabel("Probability")
+    title("Normal Probability Distribution of Measured Acceleration")
+    grid on
+    
+    % Gyro rate normal distribution
+    x_pd = -GYRO_INPUT_RANGE:1e-3:GYRO_INPUT_RANGE;
+    y_ax = pdf(fitdist(data_in.wx, "Normal"), x_pd);
+    y_ay = pdf(fitdist(data_in.wy, "Normal"), x_pd);
+    y_az = pdf(fitdist(data_in.wz, "Normal"), x_pd);
+    figure();
+    hold on
+    plot(x_pd, y_ax, DisplayName="x")
+    plot(x_pd, y_ay, DisplayName="y")
+    plot(x_pd, y_az, DisplayName="z")
+    legend()
+    xlabel("Gyro rate [rad/s]")
+    ylabel("Probability")
+    title("Normal Probability Distribution of Measured Gyro Rates")
+    grid on
+end
