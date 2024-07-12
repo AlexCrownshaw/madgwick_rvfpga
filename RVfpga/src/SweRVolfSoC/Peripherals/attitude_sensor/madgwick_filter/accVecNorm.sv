@@ -335,6 +335,8 @@ module accVecNorm(
             a_x_norm_temp <= {(`ACC_WIDTH+`ACC_MAG_SQR_WIDTH){1'b0}};
             a_y_norm_temp <= {(`ACC_WIDTH+`ACC_MAG_SQR_WIDTH){1'b0}};
             a_z_norm_temp <= {(`ACC_WIDTH+`ACC_MAG_SQR_WIDTH){1'b0}};
+            
+            data_out <= `ACC_WIDTH*3'b0;
         end else begin
             case(acc_norm_state)
                 ACC_NORM_IDLE: begin
