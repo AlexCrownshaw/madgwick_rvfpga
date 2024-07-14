@@ -81,6 +81,10 @@ module madgwick_tb;
     wire signed [`Q_HALF_WIDTH-1:0] q_x_half_q_dot;
     wire signed [`Q_HALF_WIDTH-1:0] q_y_half_q_dot;
     wire signed [`Q_HALF_WIDTH-1:0] q_z_half_q_dot;
+    wire signed [`Q_HALF_WIDTH:0] q_w_half_q_dot_rounded;
+    wire signed [`Q_HALF_WIDTH:0] q_x_half_q_dot_rounded;
+    wire signed [`Q_HALF_WIDTH:0] q_y_half_q_dot_rounded;
+    wire signed [`Q_HALF_WIDTH:0] q_z_half_q_dot_rounded;
     wire start_q_dot;
     wire done_q_dot;
     
@@ -96,19 +100,26 @@ module madgwick_tb;
     wire start_obj_func;
     wire done_obj_func;
     
-    wire signed [`Q_HAT_DOT_TRUNC_WIDTH-1:0] q_hat_dot_w;    // Err grad
-    wire signed [`Q_HAT_DOT_TRUNC_WIDTH-1:0] q_hat_dot_x;
-    wire signed [`Q_HAT_DOT_TRUNC_WIDTH-1:0] q_hat_dot_y;
-    wire signed [`Q_HAT_DOT_TRUNC_WIDTH-1:0] q_hat_dot_z;
+    wire signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_w;    // Err grad
+    wire signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_x;
+    wire signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_y;
+    wire signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_z;
+    wire signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)-1:0] q_hat_dot_w_temp;
+    wire signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)+1:0] q_hat_dot_x_temp;
+    wire signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)+2:0] q_hat_dot_y_temp;
+    wire signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)-1:0] q_hat_dot_z_temp;
     wire start_err_grad;
     wire done_err_grad;
     
-    wire [`Q_HAT_DOT_TRUNC_WIDTH-1:0] q_hat_dot_w_norm; // Err grad norm 
-    wire [`Q_HAT_DOT_TRUNC_WIDTH-1:0] q_hat_dot_x_norm; 
-    wire [`Q_HAT_DOT_TRUNC_WIDTH-1:0] q_hat_dot_y_norm; 
-    wire [`Q_HAT_DOT_TRUNC_WIDTH-1:0] q_hat_dot_z_norm; 
-    wire [(`Q_HAT_DOT_TRUNC_WIDTH*4)-1:0] data_in_err_grad_norm;
-    wire [(`Q_HAT_DOT_TRUNC_WIDTH*4)-1:0] data_out_err_grad_norm;
+    wire signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_w_norm; // Err grad norm 
+    wire signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_x_norm; 
+    wire signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_y_norm; 
+    wire signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_z_norm; 
+    wire signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_w_norm_temp;
+    wire signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_x_norm_temp;
+    wire signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_y_norm_temp;
+    wire signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_z_norm_temp;
+    wire [(`Q_HAT_DOT_WIDTH*2)+2:0] q_hat_dot_mag_sqr;
     wire start_err_grad_norm;
     wire done_err_grad_norm;
     
@@ -142,8 +153,10 @@ module madgwick_tb;
     wire signed [`Q_WIDTH-1:0] q_x_norm;
     wire signed [`Q_WIDTH-1:0] q_y_norm;
     wire signed [`Q_WIDTH-1:0] q_z_norm;
-    wire [(`Q_WIDTH*4)-1:0] data_in_quat_norm;
-    wire [(`Q_WIDTH*4)-1:0] data_out_quat_norm;
+    wire signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_w_norm_temp;
+    wire signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_x_norm_temp;
+    wire signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_y_norm_temp;
+    wire signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_z_norm_temp;
     wire start_quat_norm;
     wire done_quat_norm;
     
@@ -174,101 +187,114 @@ module madgwick_tb;
 
         // ---- Debug signals inst - Start ----
         
-        ,.q_w_half(q_w_half),   // Pre-compute
-        .q_x_half(q_x_half),
-        .q_y_half(q_y_half),
-        .q_z_half(q_z_half),
-        .q_w_two(q_w_two),
-        .q_x_two(q_x_two),
-        .q_y_two(q_y_two),
-        .q_z_two(q_z_two)
+            ,.q_w_half_debug(q_w_half),   // Pre-compute
+            .q_x_half_debug(q_x_half),
+            .q_y_half_debug(q_y_half),
+            .q_z_half_debug(q_z_half),
+            .q_w_two_debug(q_w_two),
+            .q_x_two_debug(q_x_two),
+            .q_y_two_debug(q_y_two),
+            .q_z_two_debug(q_z_two)
+            
+            ,.j_11_24_debug(j_11_24),  // Jacobian
+            .j_12_23_debug(j_12_23),
+            .j_13_22_debug(j_13_22),
+            .j_14_21_debug(j_14_21),
+            .j_32_debug(j_32),
+            .j_33_debug(j_33)
+            
+            ,.a_x_norm_debug(a_x_norm),   // Acc norm
+            .a_y_norm_debug(a_y_norm),
+            .a_z_norm_debug(a_z_norm)
+            ,.start_acc_vec_norm_debug(start_acc_vec_norm),
+            .done_acc_vec_norm_debug(done_acc_vec_norm)
         
-        ,.j_11_24(j_11_24),  // Jacobian
-        .j_12_23(j_12_23),
-        .j_13_22(j_13_22),
-        .j_14_21(j_14_21),
-        .j_32(j_32),
-        .j_33(j_33)
-        
-        ,.a_x_norm(a_x_norm),   // Acc norm
-        .a_y_norm(a_y_norm),
-        .a_z_norm(a_z_norm)
-        ,.start_acc_vec_norm(start_acc_vec_norm),
-        .done_acc_vec_norm(done_acc_vec_norm)
-
-        ,.q_dot_w(q_dot_w),  // q_dot
-        .q_dot_x(q_dot_x),
-        .q_dot_y(q_dot_y),
-        .q_dot_z(q_dot_z),
-        .q_w_half_q_dot(q_w_half_q_dot),
-        .q_x_half_q_dot(q_x_half_q_dot),
-        .q_y_half_q_dot(q_y_half_q_dot),
-        .q_z_half_q_dot(q_z_half_q_dot),
-        .start_q_dot(start_q_dot), 
-        .done_q_dot(done_q_dot)
-        
-        ,.f1(f1),   // Obj func
-        .f2(f2),
-        .f3(f3),
-        .q_w_two_obj_func(q_w_two_obj_func),
-        .q_x_two_obj_func(q_x_two_obj_func),
-        .q_y_two_obj_func(q_y_two_obj_func),
-        .a_x_norm_obj_func(a_x_norm_obj_func),
-        .a_y_norm_obj_func(a_y_norm_obj_func),
-        .a_z_norm_obj_func(a_z_norm_obj_func),
-        .start_obj_func(start_obj_func),
-        .done_obj_func(done_obj_func)
-        
-        ,.q_hat_dot_w(q_hat_dot_w), // Err grad
-        .q_hat_dot_x(q_hat_dot_x),
-        .q_hat_dot_y(q_hat_dot_y),
-        .q_hat_dot_z(q_hat_dot_z),
-        .start_err_grad(start_err_grad),
-        .done_err_grad(done_err_grad)
-        
-        ,.q_hat_dot_w_norm(q_hat_dot_w_norm),   // Err grad norm
-        .q_hat_dot_x_norm(q_hat_dot_x_norm),
-        .q_hat_dot_y_norm(q_hat_dot_y_norm),
-        .q_hat_dot_z_norm(q_hat_dot_z_norm),
-        .data_in_err_grad_norm(data_in_err_grad_norm),
-        .data_out_err_grad_norm(data_out_err_grad_norm),
-        .start_err_grad_norm(start_err_grad_norm),
-        .done_err_grad_norm(done_err_grad_norm)
-        
-        ,.beta(beta),   // Quat int
-        .delta_t(delta_t),
-        .q_dot_w_quat_int(q_dot_w_quat_int),
-        .q_dot_x_quat_int(q_dot_x_quat_int),
-        .q_dot_y_quat_int(q_dot_y_quat_int),
-        .q_dot_z_quat_int(q_dot_z_quat_int),
-        .q_w_quat_int(q_w_quat_int),
-        .q_x_quat_int(q_x_quat_int),
-        .q_y_quat_int(q_y_quat_int),
-        .q_z_quat_int(q_z_quat_int),
-        .q_w_temp(q_w_temp),
-        .q_x_temp(q_x_temp),
-        .q_y_temp(q_y_temp),
-        .q_z_temp(q_z_temp),
-        .q_round_const(q_round_const),
-        .q_w_rounded(q_w_rounded),
-        .q_x_rounded(q_x_rounded),
-        .q_y_rounded(q_y_rounded),
-        .q_z_rounded(q_z_rounded),
-        .q_w(q_w),
-        .q_x(q_x),
-        .q_y(q_y),
-        .q_z(q_z),
-        .start_quat_int(start_quat_int),
-        .done_quat_int(done_quat_int)
-        
-        ,.q_w_norm(q_w_norm),   // Quat norm
-        .q_x_norm(q_x_norm),
-        .q_y_norm(q_y_norm),
-        .q_z_norm(q_z_norm),
-        .data_in_quat_norm(data_in_quat_norm),
-        .data_out_quat_norm(data_out_quat_norm),
-        .start_quat_norm(start_quat_norm),
-        .done_quat_norm(done_quat_norm)
+            ,.q_dot_w_debug(q_dot_w),  // q_dot
+            .q_dot_x_debug(q_dot_x),
+            .q_dot_y_debug(q_dot_y),
+            .q_dot_z_debug(q_dot_z),
+            .q_w_half_q_dot_debug(q_w_half_q_dot),
+            .q_x_half_q_dot_debug(q_x_half_q_dot),
+            .q_y_half_q_dot_debug(q_y_half_q_dot),
+            .q_z_half_q_dot_debug(q_z_half_q_dot),
+            .q_w_half_q_dot_rounded_debug(q_w_half_q_dot_rounded),
+            .q_x_half_q_dot_rounded_debug(q_x_half_q_dot_rounded),
+            .q_y_half_q_dot_rounded_debug(q_y_half_q_dot_rounded),
+            .q_z_half_q_dot_rounded_debug(q_z_half_q_dot_rounded),
+            .start_q_dot_debug(start_q_dot), 
+            .done_q_dot_debug(done_q_dot)
+            
+            ,.f1_debug(f1),   // Obj func
+            .f2_debug(f2),
+            .f3_debug(f3),
+            .q_w_two_obj_func_debug(q_w_two_obj_func),
+            .q_x_two_obj_func_debug(q_x_two_obj_func),
+            .q_y_two_obj_func_debug(q_y_two_obj_func),
+            .a_x_norm_obj_func_debug(a_x_norm_obj_func),
+            .a_y_norm_obj_func_debug(a_y_norm_obj_func),
+            .a_z_norm_obj_func_debug(a_z_norm_obj_func),
+            .start_obj_func_debug(start_obj_func),
+            .done_obj_func_debug(done_obj_func)
+            
+            ,.q_hat_dot_w_debug(q_hat_dot_w), // Err grad
+            .q_hat_dot_x_debug(q_hat_dot_x),
+            .q_hat_dot_y_debug(q_hat_dot_y),
+            .q_hat_dot_z_debug(q_hat_dot_z),
+            .q_hat_dot_w_temp_debug(q_hat_dot_w_temp),
+            .q_hat_dot_x_temp_debug(q_hat_dot_x_temp),
+            .q_hat_dot_y_temp_debug(q_hat_dot_y_temp),
+            .q_hat_dot_z_temp_debug(q_hat_dot_z_temp),
+            .start_err_grad_debug(start_err_grad),
+            .done_err_grad_debug(done_err_grad)
+            
+            ,.q_hat_dot_w_norm_debug(q_hat_dot_w_norm),   // Err grad norm
+            .q_hat_dot_x_norm_debug(q_hat_dot_x_norm),
+            .q_hat_dot_y_norm_debug(q_hat_dot_y_norm),
+            .q_hat_dot_z_norm_debug(q_hat_dot_z_norm),
+            .q_hat_dot_w_norm_temp_debug(q_hat_dot_w_norm_temp),
+            .q_hat_dot_x_norm_temp_debug(q_hat_dot_x_norm_temp),
+            .q_hat_dot_y_norm_temp_debug(q_hat_dot_y_norm_temp),
+            .q_hat_dot_z_norm_temp_debug(q_hat_dot_z_norm_temp),
+            .q_hat_dot_mag_sqr_debug(q_hat_dot_mag_sqr),
+            .start_err_grad_norm_debug(start_err_grad_norm),
+            .done_err_grad_norm_debug(done_err_grad_norm)
+            
+            ,.beta_debug(beta),   // Quat int
+            .delta_t_debug(delta_t),
+            .q_dot_w_quat_int_debug(q_dot_w_quat_int),
+            .q_dot_x_quat_int_debug(q_dot_x_quat_int),
+            .q_dot_y_quat_int_debug(q_dot_y_quat_int),
+            .q_dot_z_quat_int_debug(q_dot_z_quat_int),
+            .q_w_quat_int_debug(q_w_quat_int),
+            .q_x_quat_int_debug(q_x_quat_int),
+            .q_y_quat_int_debug(q_y_quat_int),
+            .q_z_quat_int_debug(q_z_quat_int),
+            .q_w_temp_debug(q_w_temp),
+            .q_x_temp_debug(q_x_temp),
+            .q_y_temp_debug(q_y_temp),
+            .q_z_temp_debug(q_z_temp),
+            .q_round_const_debug(q_round_const),
+            .q_w_rounded_debug(q_w_rounded),
+            .q_x_rounded_debug(q_x_rounded),
+            .q_y_rounded_debug(q_y_rounded),
+            .q_z_rounded_debug(q_z_rounded),
+            .q_w_debug(q_w),
+            .q_x_debug(q_x),
+            .q_y_debug(q_y),
+            .q_z_debug(q_z),
+            .start_quat_int_debug(start_quat_int),
+            .done_quat_int_debug(done_quat_int)
+            
+            ,.q_w_norm_debug(q_w_norm),   // Quat norm
+            .q_x_norm_debug(q_x_norm),
+            .q_y_norm_debug(q_y_norm),
+            .q_z_norm_debug(q_z_norm),
+            .q_w_norm_temp_debug(q_w_norm_temp),
+            .q_x_norm_temp_debug(q_x_norm_temp),
+            .q_y_norm_temp_debug(q_y_norm_temp),
+            .q_z_norm_temp_debug(q_z_norm_temp),
+            .start_quat_norm_debug(start_quat_norm),
+            .done_quat_norm_debug(done_quat_norm)
         
         // ---- Debug signals inst - End ----
     );
