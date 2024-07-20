@@ -51,116 +51,123 @@ module madgwick (
     
     // ---- Debug I/O - Start ----
     
-    ,output wire signed [`Q_HALF_WIDTH-1:0] q_w_half_debug,    // pre-compute signals
-    output wire signed [`Q_HALF_WIDTH-1:0] q_x_half_debug,
-    output wire signed [`Q_HALF_WIDTH-1:0] q_y_half_debug,
-    output wire signed [`Q_HALF_WIDTH-1:0] q_z_half_debug,
-    output wire signed [`Q_TWO_WIDTH-1:0] q_w_two_debug,
-    output wire signed [`Q_TWO_WIDTH-1:0] q_x_two_debug,
-    output wire signed [`Q_TWO_WIDTH-1:0] q_y_two_debug,
-    output wire signed [`Q_TWO_WIDTH-1:0] q_z_two_debug
+//    ,output wire signed [`Q_HALF_WIDTH-1:0] q_w_half_debug,    // pre-compute signals
+//    output wire signed [`Q_HALF_WIDTH-1:0] q_x_half_debug,
+//    output wire signed [`Q_HALF_WIDTH-1:0] q_y_half_debug,
+//    output wire signed [`Q_HALF_WIDTH-1:0] q_z_half_debug,
+//    output wire signed [`Q_TWO_WIDTH-1:0] q_w_two_debug,
+//    output wire signed [`Q_TWO_WIDTH-1:0] q_x_two_debug,
+//    output wire signed [`Q_TWO_WIDTH-1:0] q_y_two_debug,
+//    output wire signed [`Q_TWO_WIDTH-1:0] q_z_two_debug
     
-    ,output wire signed [`JACOBIAN_WIDTH-1:0] j_11_24_debug, // Jacobian
-    output wire signed [`JACOBIAN_WIDTH-1:0] j_12_23_debug,
-    output wire signed [`JACOBIAN_WIDTH-1:0] j_13_22_debug,
-    output wire signed [`JACOBIAN_WIDTH-1:0] j_14_21_debug,
-    output wire signed [`JACOBIAN_WIDTH:0] j_32_debug,
-    output wire signed [`JACOBIAN_WIDTH:0] j_33_debug
+//    ,output wire signed [`JACOBIAN_WIDTH-1:0] j_11_24_debug, // Jacobian
+//    output wire signed [`JACOBIAN_WIDTH-1:0] j_12_23_debug,
+//    output wire signed [`JACOBIAN_WIDTH-1:0] j_13_22_debug,
+//    output wire signed [`JACOBIAN_WIDTH-1:0] j_14_21_debug,
+//    output wire signed [`JACOBIAN_WIDTH:0] j_32_debug,
+//    output wire signed [`JACOBIAN_WIDTH:0] j_33_debug
     
-    ,wire signed [`ACC_WIDTH-1:0] a_x_norm_debug, // Acc Norm
-    wire signed [`ACC_WIDTH-1:0] a_y_norm_debug,
-    wire signed [`ACC_WIDTH-1:0] a_z_norm_debug
-    ,output reg start_acc_vec_norm_debug,
-    output reg done_acc_vec_norm_debug
+//    ,output wire signed [`ACC_WIDTH-1:0] a_x_norm_debug, // Acc Norm
+//    output wire signed [`ACC_WIDTH-1:0] a_y_norm_debug,
+//    output wire signed [`ACC_WIDTH-1:0] a_z_norm_debug,
+//    ,output wire [`ACC_MAG_SQR_WIDTH-1:0] data_in_invSqrtAccNorm_debug,
+//    output wire valid_in_invSqrtAccNorm_debug,
+//    output wire ready_in_invSqrtAccNorm_debug,
+    
+//    output wire signed [`ACC_MAG_SQR_WIDTH-1:0] data_out_invSqrtAccNorm_debug,
+//    output wire valid_out_invSqrtAccNorm_debug,
+//    output wire ready_out_invSqrtAccNorm_debug
+//    output reg start_acc_vec_norm_debug,
+//    output reg done_acc_vec_norm_debug
 
-    ,output reg signed [`Q_DOT_WIDTH-1:0] q_dot_w_debug,  // q_dot
-    output reg signed [`Q_DOT_WIDTH-1:0] q_dot_x_debug,
-    output reg signed [`Q_DOT_WIDTH-1:0] q_dot_y_debug,
-    output reg signed [`Q_DOT_WIDTH-1:0] q_dot_z_debug,
-    output reg signed [`Q_HALF_WIDTH-1:0] q_w_half_q_dot_debug,
-    output reg signed [`Q_HALF_WIDTH-1:0] q_x_half_q_dot_debug,
-    output reg signed [`Q_HALF_WIDTH-1:0] q_y_half_q_dot_debug,
-    output reg signed [`Q_HALF_WIDTH-1:0] q_z_half_q_dot_debug,
-    output reg  signed [`Q_HALF_WIDTH:0] q_w_half_q_dot_rounded_debug,
-    output reg  signed [`Q_HALF_WIDTH:0] q_x_half_q_dot_rounded_debug,
-    output reg  signed [`Q_HALF_WIDTH:0] q_y_half_q_dot_rounded_debug,
-    output reg  signed [`Q_HALF_WIDTH:0] q_z_half_q_dot_rounded_debug,
-    output reg start_q_dot_debug,
-    output reg done_q_dot_debug
+//    ,output reg signed [`Q_DOT_WIDTH-1:0] q_dot_w_debug,  // q_dot
+//    output reg signed [`Q_DOT_WIDTH-1:0] q_dot_x_debug,
+//    output reg signed [`Q_DOT_WIDTH-1:0] q_dot_y_debug,
+//    output reg signed [`Q_DOT_WIDTH-1:0] q_dot_z_debug,
+//    output reg signed [`Q_HALF_WIDTH-1:0] q_w_half_q_dot_debug,
+//    output reg signed [`Q_HALF_WIDTH-1:0] q_x_half_q_dot_debug,
+//    output reg signed [`Q_HALF_WIDTH-1:0] q_y_half_q_dot_debug,
+//    output reg signed [`Q_HALF_WIDTH-1:0] q_z_half_q_dot_debug,
+//    output reg  signed [`Q_HALF_WIDTH:0] q_w_half_q_dot_rounded_debug,
+//    output reg  signed [`Q_HALF_WIDTH:0] q_x_half_q_dot_rounded_debug,
+//    output reg  signed [`Q_HALF_WIDTH:0] q_y_half_q_dot_rounded_debug,
+//    output reg  signed [`Q_HALF_WIDTH:0] q_z_half_q_dot_rounded_debug,
+//    output reg start_q_dot_debug,
+//    output reg done_q_dot_debug
     
-    ,output reg signed [`OBJ_FUNC_WIDTH-1:0] f1_debug,    // Obj func
-    output reg signed [`OBJ_FUNC_WIDTH-1:0] f2_debug,
-    output reg signed [`OBJ_FUNC_WIDTH:0] f3_debug,
-    output reg signed [`Q_TWO_WIDTH-1:0] q_w_two_obj_func_debug,
-    output reg signed [`Q_TWO_WIDTH-1:0] q_x_two_obj_func_debug,
-    output reg signed [`Q_TWO_WIDTH-1:0] q_y_two_obj_func_debug,
-    output reg signed [`Q_WIDTH+`Q_TWO_WIDTH-1:0] a_x_norm_obj_func_debug,
-    output reg signed [`Q_WIDTH+`Q_TWO_WIDTH-1:0] a_y_norm_obj_func_debug,
-    output reg signed [`Q_WIDTH+`Q_TWO_WIDTH-1:0] a_z_norm_obj_func_debug,
-    output reg start_obj_func_debug,
-    output reg done_obj_func_debug
+//    ,output reg signed [`OBJ_FUNC_WIDTH-1:0] f1_debug,    // Obj func
+//    output reg signed [`OBJ_FUNC_WIDTH-1:0] f2_debug,
+//    output reg signed [`OBJ_FUNC_WIDTH:0] f3_debug,
+//    output reg signed [`Q_TWO_WIDTH-1:0] q_w_two_obj_func_debug,
+//    output reg signed [`Q_TWO_WIDTH-1:0] q_x_two_obj_func_debug,
+//    output reg signed [`Q_TWO_WIDTH-1:0] q_y_two_obj_func_debug,
+//    output reg signed [`Q_WIDTH+`Q_TWO_WIDTH-1:0] a_x_norm_obj_func_debug,
+//    output reg signed [`Q_WIDTH+`Q_TWO_WIDTH-1:0] a_y_norm_obj_func_debug,
+//    output reg signed [`Q_WIDTH+`Q_TWO_WIDTH-1:0] a_z_norm_obj_func_debug,
+//    output reg start_obj_func_debug,
+//    output reg done_obj_func_debug
     
-    ,output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_w_debug,  // Err grad
-    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_x_debug,
-    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_y_debug,
-    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_z_debug,
-    output reg signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)-1:0] q_hat_dot_w_temp_debug,
-    output reg signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)+1:0] q_hat_dot_x_temp_debug,
-    output reg signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)+2:0] q_hat_dot_y_temp_debug,
-    output reg signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)-1:0] q_hat_dot_z_temp_debug,
-    output reg start_err_grad_debug,
-    output reg done_err_grad_debug
+//    ,output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_w_debug,  // Err grad
+//    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_x_debug,
+//    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_y_debug,
+//    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_z_debug,
+//    output reg signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)-1:0] q_hat_dot_w_temp_debug,
+//    output reg signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)+1:0] q_hat_dot_x_temp_debug,
+//    output reg signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)+2:0] q_hat_dot_y_temp_debug,
+//    output reg signed [(`OBJ_FUNC_WIDTH+`JACOBIAN_WIDTH+1)-1:0] q_hat_dot_z_temp_debug,
+//    output reg start_err_grad_debug,
+//    output reg done_err_grad_debug
     
-    ,output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_w_norm_debug, // Err grad norm 
-    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_x_norm_debug, 
-    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_y_norm_debug, 
-    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_z_norm_debug,
-    output reg signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_w_norm_temp_debug,
-    output reg signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_x_norm_temp_debug,
-    output reg signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_y_norm_temp_debug,
-    output reg signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_z_norm_temp_debug,
-    output reg [(`Q_HAT_DOT_WIDTH*2)+2:0] q_hat_dot_mag_sqr_debug,
-//    output reg [(`Q_HAT_DOT_WIDTH*4)-1:0] data_in_err_grad_norm_debug,
-//    output reg [(`Q_HAT_DOT_WIDTH*4)-1:0] data_out_err_grad_norm_debug,
-    output reg start_err_grad_norm_debug,
-    output reg done_err_grad_norm_debug
+//    ,output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_w_norm_debug, // Err grad norm 
+//    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_x_norm_debug, 
+//    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_y_norm_debug, 
+//    output reg signed [`Q_HAT_DOT_WIDTH-1:0] q_hat_dot_z_norm_debug,
+//    output reg signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_w_norm_temp_debug,
+//    output reg signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_x_norm_temp_debug,
+//    output reg signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_y_norm_temp_debug,
+//    output reg signed [(`Q_HAT_DOT_WIDTH+`Q_HAT_DOT_MAG_SQR_WIDTH)-1:0] q_hat_dot_z_norm_temp_debug,
+//    output reg [(`Q_HAT_DOT_WIDTH*2)+2:0] q_hat_dot_mag_sqr_debug,
+////    output reg [(`Q_HAT_DOT_WIDTH*4)-1:0] data_in_err_grad_norm_debug,
+////    output reg [(`Q_HAT_DOT_WIDTH*4)-1:0] data_out_err_grad_norm_debug,
+//    output reg start_err_grad_norm_debug,
+//    output reg done_err_grad_norm_debug
     
-    ,output reg signed [`BETA_WIDTH-1:0] beta_debug,    // Quat int
-    output reg signed [`DELTA_T_WIDTH-1:0] delta_t_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)-1:0] q_dot_w_quat_int_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)-1:0] q_dot_x_quat_int_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)-1:0] q_dot_y_quat_int_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)-1:0] q_dot_z_quat_int_debug,
-    output reg signed [`Q_INT_WIDTH+(`DELTA_T_FRACT_WIDTH * 2)-1:0] q_w_quat_int_debug,
-    output reg signed [`Q_INT_WIDTH+(`DELTA_T_FRACT_WIDTH * 2)-1:0] q_x_quat_int_debug,
-    output reg signed [`Q_INT_WIDTH+(`DELTA_T_FRACT_WIDTH * 2)-1:0] q_y_quat_int_debug,
-    output reg signed [`Q_INT_WIDTH+(`DELTA_T_FRACT_WIDTH * 2)-1:0] q_z_quat_int_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_WIDTH+1:0] q_w_temp_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_WIDTH+1:0] q_x_temp_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_WIDTH+1:0] q_y_temp_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_WIDTH+1:0] q_z_temp_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_FRACT_WIDTH+1:0] q_round_const_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_FRACT_WIDTH+2:0] q_w_rounded_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_FRACT_WIDTH+2:0] q_x_rounded_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_FRACT_WIDTH+2:0] q_y_rounded_debug,
-    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_FRACT_WIDTH+2:0] q_z_rounded_debug,
-    output reg signed [`Q_WIDTH-1:0] q_w_debug,
-    output reg signed [`Q_WIDTH-1:0] q_x_debug,
-    output reg signed [`Q_WIDTH-1:0] q_y_debug,
-    output reg signed [`Q_WIDTH-1:0] q_z_debug,
-    output reg start_quat_int_debug,
-    output reg done_quat_int_debug
+//    ,output reg signed [`BETA_WIDTH-1:0] beta_debug,    // Quat int
+//    output reg signed [`DELTA_T_WIDTH-1:0] delta_t_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)-1:0] q_dot_w_quat_int_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)-1:0] q_dot_x_quat_int_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)-1:0] q_dot_y_quat_int_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)-1:0] q_dot_z_quat_int_debug,
+//    output reg signed [`Q_INT_WIDTH+(`DELTA_T_FRACT_WIDTH * 2)-1:0] q_w_quat_int_debug,
+//    output reg signed [`Q_INT_WIDTH+(`DELTA_T_FRACT_WIDTH * 2)-1:0] q_x_quat_int_debug,
+//    output reg signed [`Q_INT_WIDTH+(`DELTA_T_FRACT_WIDTH * 2)-1:0] q_y_quat_int_debug,
+//    output reg signed [`Q_INT_WIDTH+(`DELTA_T_FRACT_WIDTH * 2)-1:0] q_z_quat_int_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_WIDTH+1:0] q_w_temp_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_WIDTH+1:0] q_x_temp_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_WIDTH+1:0] q_y_temp_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_WIDTH+1:0] q_z_temp_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_FRACT_WIDTH+1:0] q_round_const_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_FRACT_WIDTH+2:0] q_w_rounded_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_FRACT_WIDTH+2:0] q_x_rounded_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_FRACT_WIDTH+2:0] q_y_rounded_debug,
+//    output reg signed [`Q_DOT_INT_WIDTH+(`BETA_FRACT_WIDTH*2)+`DELTA_T_FRACT_WIDTH+2:0] q_z_rounded_debug,
+//    output reg signed [`Q_WIDTH-1:0] q_w_debug,
+//    output reg signed [`Q_WIDTH-1:0] q_x_debug,
+//    output reg signed [`Q_WIDTH-1:0] q_y_debug,
+//    output reg signed [`Q_WIDTH-1:0] q_z_debug,
+//    output reg start_quat_int_debug,
+//    output reg done_quat_int_debug
     
-    ,output reg signed [`Q_WIDTH-1:0] q_w_norm_debug, // Quat norm
-    output reg signed [`Q_WIDTH-1:0] q_x_norm_debug,
-    output reg signed [`Q_WIDTH-1:0] q_y_norm_debug,
-    output reg signed [`Q_WIDTH-1:0] q_z_norm_debug,
-    output reg signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_w_norm_temp_debug,
-    output reg signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_x_norm_temp_debug,
-    output reg signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_y_norm_temp_debug,
-    output reg signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_z_norm_temp_debug,
-    output reg start_quat_norm_debug,
-    output reg done_quat_norm_debug
+//    ,output reg signed [`Q_WIDTH-1:0] q_w_norm_debug, // Quat norm
+//    output reg signed [`Q_WIDTH-1:0] q_x_norm_debug,
+//    output reg signed [`Q_WIDTH-1:0] q_y_norm_debug,
+//    output reg signed [`Q_WIDTH-1:0] q_z_norm_debug,
+//    output reg signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_w_norm_temp_debug,
+//    output reg signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_x_norm_temp_debug,
+//    output reg signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_y_norm_temp_debug,
+//    output reg signed [(`Q_WIDTH+`Q_MAG_SQR_WIDTH)-1:0] q_z_norm_temp_debug,
+//    output reg start_quat_norm_debug,
+//    output reg done_quat_norm_debug
     
     // ---- Debug I/O - End ----
     );
@@ -335,7 +342,7 @@ module madgwick (
         if (!rst_n) begin
             done_acc_vec_norm <= 1'b0;   // Reset state machine signals
     
-            data_in_invSqrtAccNorm <= `ACC_MAG_SQR_WIDTH'b0;    // Reset invSqrt signals
+            data_in_invSqrtAccNorm <= 0;    // Reset invSqrt signals
             valid_in_invSqrtAccNorm <= 1'b0;
             ready_out_invSqrtAccNorm <= 1'b0;
     
@@ -867,37 +874,6 @@ module madgwick (
     
     // ---- Integrate quaternion derivatives - End ----
     
-//    // ---- Normalise quaternion - Start ----
-    
-//    reg start_quat_norm;
-//    wire done_quat_norm;
-    
-//    wire [(`Q_WIDTH*4)-1:0] data_in_quat_norm;
-//    wire [(`Q_WIDTH*4)-1:0] data_out_quat_norm;
-    
-//    assign data_in_quat_norm = {q_w, q_x, q_y, q_z};
-    
-//    assign q_w_norm_output = data_out_quat_norm[`Q_WIDTH-1:0];
-//    assign q_x_norm_output = data_out_quat_norm[(`Q_WIDTH*2)-1:`Q_WIDTH];
-//    assign q_y_norm_output = data_out_quat_norm[(`Q_WIDTH*3)-1:`Q_WIDTH*2];
-//    assign q_z_norm_output = data_out_quat_norm[(`Q_WIDTH*4)-1:`Q_WIDTH*3];
-    
-//    quaternionNormalisation #(
-//        .INPUT_INT_WIDTH(`Q_INT_WIDTH),
-//        .INPUT_FRACT_WIDTH(`Q_FRACT_WIDTH),
-//        .MAG_SQR_INT_WIDTH(`Q_MAG_SQR_INT_WIDTH),
-//        .MAG_SQR_FRACT_WIDTH(`Q_MAG_SQR_FRACT_WIDTH)
-//    ) quat_norm (
-//        .clk(clk),
-//        .rst_n(rst_n),
-//        .start(start_quat_norm),
-//        .done(done_quat_norm),
-//        .data_in(data_in_quat_norm),
-//        .data_out(data_out_quat_norm)
-//    );
-    
-//    // ---- Normalise quaternion - End ----
-    
     // ---- Normalise quaternion - Start ----
     
     reg start_quat_norm;
@@ -938,11 +914,6 @@ module madgwick (
     assign q_x_norm_rounded = q_x_norm_temp + q_norm_round_const;
     assign q_y_norm_rounded = q_y_norm_temp + q_norm_round_const;
     assign q_z_norm_rounded = q_z_norm_temp + q_norm_round_const;
-    
-    assign q_w_norm_output = q_w_norm_rounded[Q_NORM_INT_MSB_INDEX: Q_NORM_FRACT_LSB_INDEX];
-    assign q_x_norm_output = q_x_norm_rounded[Q_NORM_INT_MSB_INDEX: Q_NORM_FRACT_LSB_INDEX];
-    assign q_y_norm_output = q_y_norm_rounded[Q_NORM_INT_MSB_INDEX: Q_NORM_FRACT_LSB_INDEX];
-    assign q_z_norm_output = q_z_norm_rounded[Q_NORM_INT_MSB_INDEX: Q_NORM_FRACT_LSB_INDEX];
     
     reg [`Q_MAG_SQR_WIDTH-1:0] data_in_invSqrtQuatNorm;
     reg valid_in_invSqrtQuatNorm;
@@ -1067,6 +1038,24 @@ module madgwick (
 
     // ---- Normalise quaternion - End ----
     
+    // ---- Output quaternion assignments - Start ---- 
+    
+    always @ (posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            q_w_norm_output <= `Q_WIDTH'b1 << `Q_FRACT_WIDTH;
+            q_x_norm_output <= `Q_WIDTH'b0;
+            q_y_norm_output <= `Q_WIDTH'b0;
+            q_z_norm_output <= `Q_WIDTH'b0;
+        end else begin
+            q_w_norm_output <= q_w_norm_rounded[Q_NORM_INT_MSB_INDEX: Q_NORM_FRACT_LSB_INDEX];
+            q_x_norm_output <= q_x_norm_rounded[Q_NORM_INT_MSB_INDEX: Q_NORM_FRACT_LSB_INDEX];
+            q_y_norm_output <= q_y_norm_rounded[Q_NORM_INT_MSB_INDEX: Q_NORM_FRACT_LSB_INDEX];
+            q_z_norm_output <= q_z_norm_rounded[Q_NORM_INT_MSB_INDEX: Q_NORM_FRACT_LSB_INDEX];
+        end
+    end
+    
+    // ---- Output quaternion assignments - End ---- 
+    
     // ---- Control path state machine - Start ----
     
     typedef enum reg [3:0] {
@@ -1152,10 +1141,6 @@ module madgwick (
             q_y_norm <= `Q_WIDTH'b0;
             q_z_norm <= `Q_WIDTH'b0;
             
-            q_w_norm_output <= `Q_WIDTH'b1 << `Q_FRACT_WIDTH;    // Reset output signals 
-            q_x_norm_output <= `Q_WIDTH'b0;
-            q_y_norm_output <= `Q_WIDTH'b0;
-            q_z_norm_output <= `Q_WIDTH'b0;
             valid_out <= 1'b0;
             
             start_acc_vec_norm <= 1'b0; // Reset state machine control signals
@@ -1229,115 +1214,120 @@ module madgwick (
     
     // ---- Debug signal assignments - Start ----
     
-    assign q_w_half_debug = q_w_half;
-    assign q_x_half_debug = q_x_half;
-    assign q_y_half_debug = q_y_half;
-    assign q_z_half_debug = q_z_half;
-    assign q_w_two_debug = q_w_two;
-    assign q_x_two_debug = q_x_two;
-    assign q_y_two_debug = q_y_two;
-    assign q_z_two_debug = q_z_two;
+//    assign q_w_half_debug = q_w_half;
+//    assign q_x_half_debug = q_x_half;
+//    assign q_y_half_debug = q_y_half;
+//    assign q_z_half_debug = q_z_half;
+//    assign q_w_two_debug = q_w_two;
+//    assign q_x_two_debug = q_x_two;
+//    assign q_y_two_debug = q_y_two;
+//    assign q_z_two_debug = q_z_two;
     
-    assign j_11_24_debug = j_11_24;
-    assign j_12_23_debug = j_12_23;
-    assign j_13_22_debug = j_13_22;
-    assign j_14_21_debug = j_14_21;
-    assign j_32_debug = j_32;
-    assign j_33_debug = j_33;
+//    assign j_11_24_debug = j_11_24;
+//    assign j_12_23_debug = j_12_23;
+//    assign j_13_22_debug = j_13_22;
+//    assign j_14_21_debug = j_14_21;
+//    assign j_32_debug = j_32;
+//    assign j_33_debug = j_33;
     
-    assign a_x_norm_debug = a_x_norm;
-    assign a_y_norm_debug = a_y_norm;
-    assign a_z_norm_debug = a_z_norm;
+//    assign a_x_norm_debug = a_x_norm;
+//    assign a_y_norm_debug = a_y_norm;
+//    assign a_z_norm_debug = a_z_norm;
+//    assign data_in_invSqrtAccNorm_debug = data_in_invSqrtAccNorm;
+//    assign valid_in_invSqrtAccNorm_debug = valid_in_invSqrtAccNorm;
+//    assign ready_in_invSqrtAccNorm_debug = ready_in_invSqrtAccNorm;
+//    assign data_out_invSqrtAccNorm_debug = data_out_invSqrtAccNorm;
+//    assign valid_out_invSqrtAccNorm_debug = valid_out_invSqrtAccNorm;
+//    assign ready_out_invSqrtAccNorm_debug = ready_out_invSqrtAccNorm;
+//    assign start_acc_vec_norm_debug = start_acc_vec_norm;
+//    assign done_acc_vec_norm_debug = done_acc_vec_norm;
     
-    assign start_acc_vec_norm_debug = start_acc_vec_norm;
-    assign done_acc_vec_norm_debug = done_acc_vec_norm;
+//    assign q_dot_w_debug = q_dot_w;
+//    assign q_dot_x_debug = q_dot_x;
+//    assign q_dot_y_debug = q_dot_y;
+//    assign q_dot_z_debug = q_dot_z;
+//    assign q_w_half_q_dot_debug = q_w_half_q_dot;
+//    assign q_x_half_q_dot_debug = q_x_half_q_dot;
+//    assign q_y_half_q_dot_debug = q_y_half_q_dot;
+//    assign q_z_half_q_dot_debug = q_z_half_q_dot;
+//    assign q_w_half_q_dot_rounded_debug = q_w_half_q_dot_rounded;
+//    assign q_x_half_q_dot_rounded_debug = q_x_half_q_dot_rounded;
+//    assign q_y_half_q_dot_rounded_debug = q_y_half_q_dot_rounded;
+//    assign q_z_half_q_dot_rounded_debug = q_z_half_q_dot_rounded;
+//    assign start_q_dot_debug = start_q_dot;
+//    assign done_q_dot_debug = done_q_dot;
     
-    assign q_dot_w_debug = q_dot_w;
-    assign q_dot_x_debug = q_dot_x;
-    assign q_dot_y_debug = q_dot_y;
-    assign q_dot_z_debug = q_dot_z;
-    assign q_w_half_q_dot_debug = q_w_half_q_dot;
-    assign q_x_half_q_dot_debug = q_x_half_q_dot;
-    assign q_y_half_q_dot_debug = q_y_half_q_dot;
-    assign q_z_half_q_dot_debug = q_z_half_q_dot;
-    assign q_w_half_q_dot_rounded_debug = q_w_half_q_dot_rounded;
-    assign q_x_half_q_dot_rounded_debug = q_x_half_q_dot_rounded;
-    assign q_y_half_q_dot_rounded_debug = q_y_half_q_dot_rounded;
-    assign q_z_half_q_dot_rounded_debug = q_z_half_q_dot_rounded;
-    assign start_q_dot_debug = start_q_dot;
-    assign done_q_dot_debug = done_q_dot;
+//    assign f1_debug = f1;
+//    assign f2_debug = f2;
+//    assign f3_debug = f3;
+//    assign q_w_two_obj_func_debug = q_w_two_obj_func;
+//    assign q_x_two_obj_func_debug = q_x_two_obj_func;
+//    assign q_y_two_obj_func_debug = q_y_two_obj_func;
+//    assign a_x_norm_obj_func_debug = a_x_norm_obj_func;
+//    assign a_y_norm_obj_func_debug = a_y_norm_obj_func;
+//    assign a_z_norm_obj_func_debug = a_z_norm_obj_func;
+//    assign start_obj_func_debug = start_obj_func;
+//    assign done_obj_func_debug = done_obj_func;
     
-    assign f1_debug = f1;
-    assign f2_debug = f2;
-    assign f3_debug = f3;
-    assign q_w_two_obj_func_debug = q_w_two_obj_func;
-    assign q_x_two_obj_func_debug = q_x_two_obj_func;
-    assign q_y_two_obj_func_debug = q_y_two_obj_func;
-    assign a_x_norm_obj_func_debug = a_x_norm_obj_func;
-    assign a_y_norm_obj_func_debug = a_y_norm_obj_func;
-    assign a_z_norm_obj_func_debug = a_z_norm_obj_func;
-    assign start_obj_func_debug = start_obj_func;
-    assign done_obj_func_debug = done_obj_func;
+//    assign q_hat_dot_w_debug = q_hat_dot_w;
+//    assign q_hat_dot_x_debug = q_hat_dot_x;
+//    assign q_hat_dot_y_debug = q_hat_dot_y;
+//    assign q_hat_dot_z_debug = q_hat_dot_z;
+//    assign q_hat_dot_w_temp_debug = q_hat_dot_w_temp;
+//    assign q_hat_dot_x_temp_debug = q_hat_dot_x_temp;
+//    assign q_hat_dot_y_temp_debug = q_hat_dot_y_temp;
+//    assign q_hat_dot_z_temp_debug = q_hat_dot_z_temp;
+//    assign start_err_grad_debug = start_err_grad;
+//    assign done_err_grad_debug = done_err_grad;
     
-    assign q_hat_dot_w_debug = q_hat_dot_w;
-    assign q_hat_dot_x_debug = q_hat_dot_x;
-    assign q_hat_dot_y_debug = q_hat_dot_y;
-    assign q_hat_dot_z_debug = q_hat_dot_z;
-    assign q_hat_dot_w_temp_debug = q_hat_dot_w_temp;
-    assign q_hat_dot_x_temp_debug = q_hat_dot_x_temp;
-    assign q_hat_dot_y_temp_debug = q_hat_dot_y_temp;
-    assign q_hat_dot_z_temp_debug = q_hat_dot_z_temp;
-    assign start_err_grad_debug = start_err_grad;
-    assign done_err_grad_debug = done_err_grad;
+//    assign q_hat_dot_w_norm_debug = q_hat_dot_w_norm;
+//    assign q_hat_dot_x_norm_debug = q_hat_dot_x_norm;
+//    assign q_hat_dot_y_norm_debug = q_hat_dot_y_norm;
+//    assign q_hat_dot_z_norm_debug = q_hat_dot_z_norm;
+//    assign q_hat_dot_w_norm_temp_debug = q_hat_dot_w_norm_temp;
+//    assign q_hat_dot_x_norm_temp_debug = q_hat_dot_x_norm_temp;
+//    assign q_hat_dot_y_norm_temp_debug = q_hat_dot_y_norm_temp;
+//    assign q_hat_dot_z_norm_temp_debug = q_hat_dot_z_norm_temp;
+//    assign q_hat_dot_mag_sqr_debug = q_hat_dot_mag_sqr;
+//    assign start_err_grad_norm_debug = start_err_grad_norm;
+//    assign done_err_grad_norm_debug = done_err_grad_norm;
     
-    assign q_hat_dot_w_norm_debug = q_hat_dot_w_norm;
-    assign q_hat_dot_x_norm_debug = q_hat_dot_x_norm;
-    assign q_hat_dot_y_norm_debug = q_hat_dot_y_norm;
-    assign q_hat_dot_z_norm_debug = q_hat_dot_z_norm;
-    assign q_hat_dot_w_norm_temp_debug = q_hat_dot_w_norm_temp;
-    assign q_hat_dot_x_norm_temp_debug = q_hat_dot_x_norm_temp;
-    assign q_hat_dot_y_norm_temp_debug = q_hat_dot_y_norm_temp;
-    assign q_hat_dot_z_norm_temp_debug = q_hat_dot_z_norm_temp;
-    assign q_hat_dot_mag_sqr_debug = q_hat_dot_mag_sqr;
-    assign start_err_grad_norm_debug = start_err_grad_norm;
-    assign done_err_grad_norm_debug = done_err_grad_norm;
+//    assign beta_debug = beta;
+//    assign delta_t_debug = delta_t;
+//    assign q_dot_w_quat_int_debug = q_dot_w_quat_int;
+//    assign q_dot_x_quat_int_debug = q_dot_x_quat_int;
+//    assign q_dot_y_quat_int_debug = q_dot_y_quat_int;
+//    assign q_dot_z_quat_int_debug = q_dot_z_quat_int;
+//    assign q_w_quat_int_debug = q_w_quat_int;
+//    assign q_x_quat_int_debug = q_x_quat_int;
+//    assign q_y_quat_int_debug = q_y_quat_int;
+//    assign q_z_quat_int_debug = q_z_quat_int;
+//    assign q_w_temp_debug = q_w_temp;
+//    assign q_x_temp_debug = q_x_temp;
+//    assign q_y_temp_debug = q_y_temp;
+//    assign q_z_temp_debug = q_z_temp;
+//    assign q_round_const_debug = q_round_const;
+//    assign q_w_rounded_debug = q_w_rounded;
+//    assign q_x_rounded_debug = q_x_rounded;
+//    assign q_y_rounded_debug = q_y_rounded;
+//    assign q_z_rounded_debug = q_z_rounded;
+//    assign q_w_debug = q_w;
+//    assign q_x_debug = q_x;
+//    assign q_y_debug = q_y;
+//    assign q_z_debug = q_z;
+//    assign start_quat_int_debug = start_quat_int;
+//    assign done_quat_int_debug = done_quat_int;
     
-    assign beta_debug = beta;
-    assign delta_t_debug = delta_t;
-    assign q_dot_w_quat_int_debug = q_dot_w_quat_int;
-    assign q_dot_x_quat_int_debug = q_dot_x_quat_int;
-    assign q_dot_y_quat_int_debug = q_dot_y_quat_int;
-    assign q_dot_z_quat_int_debug = q_dot_z_quat_int;
-    assign q_w_quat_int_debug = q_w_quat_int;
-    assign q_x_quat_int_debug = q_x_quat_int;
-    assign q_y_quat_int_debug = q_y_quat_int;
-    assign q_z_quat_int_debug = q_z_quat_int;
-    assign q_w_temp_debug = q_w_temp;
-    assign q_x_temp_debug = q_x_temp;
-    assign q_y_temp_debug = q_y_temp;
-    assign q_z_temp_debug = q_z_temp;
-    assign q_round_const_debug = q_round_const;
-    assign q_w_rounded_debug = q_w_rounded;
-    assign q_x_rounded_debug = q_x_rounded;
-    assign q_y_rounded_debug = q_y_rounded;
-    assign q_z_rounded_debug = q_z_rounded;
-    assign q_w_debug = q_w;
-    assign q_x_debug = q_x;
-    assign q_y_debug = q_y;
-    assign q_z_debug = q_z;
-    assign start_quat_int_debug = start_quat_int;
-    assign done_quat_int_debug = done_quat_int;
-    
-    assign q_w_norm_debug = q_w_norm;
-    assign q_x_norm_debug = q_x_norm;
-    assign q_y_norm_debug = q_y_norm;
-    assign q_z_norm_debug = q_z_norm;
-    assign q_w_norm_temp_debug = q_w_norm_temp;
-    assign q_x_norm_temp_debug = q_x_norm_temp;
-    assign q_y_norm_temp_debug = q_y_norm_temp;
-    assign q_z_norm_temp_debug = q_z_norm_temp;
-    assign start_quat_norm_debug = start_quat_norm;
-    assign done_quat_norm_debug = done_quat_norm;
+//    assign q_w_norm_debug = q_w_norm;
+//    assign q_x_norm_debug = q_x_norm;
+//    assign q_y_norm_debug = q_y_norm;
+//    assign q_z_norm_debug = q_z_norm;
+//    assign q_w_norm_temp_debug = q_w_norm_temp;
+//    assign q_x_norm_temp_debug = q_x_norm_temp;
+//    assign q_y_norm_temp_debug = q_y_norm_temp;
+//    assign q_z_norm_temp_debug = q_z_norm_temp;
+//    assign start_quat_norm_debug = start_quat_norm;
+//    assign done_quat_norm_debug = done_quat_norm;
     
     // ---- Debug signal assignments - End ----
     
