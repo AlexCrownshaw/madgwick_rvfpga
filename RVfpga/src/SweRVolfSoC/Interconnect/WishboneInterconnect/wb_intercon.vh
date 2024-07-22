@@ -101,6 +101,20 @@ wire        wb_s2m_spi_accel_ack;
 wire        wb_s2m_spi_accel_err;
 wire        wb_s2m_spi_accel_rty;
 
+// Madgwick Filter
+wire [31:0] wb_m2s_madgwick_adr;
+wire [31:0] wb_m2s_madgwick_dat;
+wire  [3:0] wb_m2s_madgwick_sel;
+wire        wb_m2s_madgwick_we;
+wire        wb_m2s_madgwick_cyc;
+wire        wb_m2s_madgwick_stb;
+wire  [2:0] wb_m2s_madgwick_cti;
+wire  [1:0] wb_m2s_madgwick_bte;
+wire [31:0] wb_s2m_madgwick_dat;
+wire        wb_s2m_madgwick_ack;
+wire        wb_s2m_madgwick_err;
+wire        wb_s2m_madgwick_rty;
+
 wb_intercon wb_intercon0
    (.wb_clk_i           (wb_clk),
     .wb_rst_i           (wb_rst),
@@ -202,4 +216,18 @@ wb_intercon wb_intercon0
     .wb_spi_accel_dat_i (wb_s2m_spi_accel_dat),
     .wb_spi_accel_ack_i (wb_s2m_spi_accel_ack),
     .wb_spi_accel_err_i (wb_s2m_spi_accel_err),
-    .wb_spi_accel_rty_i (wb_s2m_spi_accel_rty));
+    .wb_spi_accel_rty_i (wb_s2m_spi_accel_rty),
+// Madgwick Filter
+    .wb_madgwick_adr_o (wb_m2s_madgwick_adr),
+    .wb_madgwick_dat_o (wb_m2s_madgwick_dat),
+    .wb_madgwick_sel_o (wb_m2s_madgwick_sel),
+    .wb_madgwick_we_o  (wb_m2s_madgwick_we),
+    .wb_madgwick_cyc_o (wb_m2s_madgwick_cyc),
+    .wb_madgwick_stb_o (wb_m2s_madgwick_stb),
+    .wb_madgwick_cti_o (wb_m2s_madgwick_cti),
+    .wb_madgwick_bte_o (wb_m2s_madgwick_bte),
+    .wb_madgwick_dat_i (wb_s2m_madgwick_dat),
+    .wb_madgwick_ack_i (wb_s2m_madgwick_ack),
+    .wb_madgwick_err_i (wb_s2m_madgwick_err),
+    .wb_madgwick_rty_i (wb_s2m_madgwick_rty)
+    );

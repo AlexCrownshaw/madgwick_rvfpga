@@ -402,7 +402,18 @@ module swervolf_core
       .mosi_o (o_accel_mosi),
       .miso_i (i_accel_miso));
 
-
+    // Madgwick Filter module
+    madgwick_top madgwick_top_inst (
+        .clk(clk),
+        .rst(wb_rst),
+        .adr_i(wb_m2s_madgwick_adr[5:0]),
+        .dat_i(wb_m2s_madgwick_dat),
+        .dat_o(wb_s2m_madgwick_dat),
+        .we_i(wb_m2s_madgwick_we),
+        .stb_i(wb_m2s_madgwick_stb),
+        .cyc_i(wb_m2s_madgwick_cyc),
+        .ack_o(wb_s2m_madgwick_ack)
+    );
 
    swerv_wrapper_dmi swerv_eh1
      (
