@@ -2,7 +2,7 @@
 --cc
 
 
-+incdir+../RVfpga/RVfpga/src/SweRVolfSoC/SweRVEh1CoreComplex/include
++incdir+../RVfpga/src/SweRVolfSoC/SweRVEh1CoreComplex/include
 -CFLAGS -I../RVfpga/src/SweRVolfSoC/SweRVEh1CoreComplex/include
 +incdir+../RVfpga/src/OtherSources/jtag_vpi_0-r5/
 -CFLAGS -I../RVfpga/src/OtherSources/jtag_vpi_0-r5/
