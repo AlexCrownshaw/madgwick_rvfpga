@@ -37,30 +37,30 @@ module tb_madgwick_top;
     reg stb_i;
     reg cyc_i;
     wire ack_o;
-    
-    // wire [`ACC_WIDTH-1:0] a_x_debug;
-    // wire [`ACC_WIDTH-1:0] a_y_debug;
-    // wire [`ACC_WIDTH-1:0] a_z_debug;
-    
-    // wire [`GYRO_WIDTH-1:0] w_x_debug;
-    // wire [`GYRO_WIDTH-1:0] w_y_debug;
-    // wire [`GYRO_WIDTH-1:0] w_z_debug;
-    
-    // wire [`Q_WIDTH-1:0] q_w_debug;
-    // wire [`Q_WIDTH-1:0] q_x_debug;
-    // wire [`Q_WIDTH-1:0] q_y_debug;
-    // wire [`Q_WIDTH-1:0] q_z_debug;
-    
-    // wire enable_debug;
-    // wire start_debug;
-    // wire done_debug;
-    
-    // wire rst_n_madgwick;
-    // wire valid_in_madgwick;
-    // wire ready_in_madgwick;
-    // wire valid_out_madgwick;
-    // wire ready_out_madgwick;
-    
+
+//    wire [`ACC_WIDTH-1:0] a_x_debug;
+//    wire [`ACC_WIDTH-1:0] a_y_debug;
+//    wire [`ACC_WIDTH-1:0] a_z_debug;
+
+//    wire [`GYRO_WIDTH-1:0] w_x_debug;
+//    wire [`GYRO_WIDTH-1:0] w_y_debug;
+//    wire [`GYRO_WIDTH-1:0] w_z_debug;
+
+//    wire [`Q_WIDTH-1:0] q_w_debug;
+//    wire [`Q_WIDTH-1:0] q_x_debug;
+//    wire [`Q_WIDTH-1:0] q_y_debug;
+//    wire [`Q_WIDTH-1:0] q_z_debug;
+
+//    wire enable_debug;
+//    wire start_debug;
+//    wire done_debug;
+
+//    wire rst_n_madgwick;
+//    wire valid_in_madgwick;
+//    wire ready_in_madgwick;
+//    wire valid_out_madgwick;
+//    wire ready_out_madgwick;
+
     madgwick_top dut (
         .clk(clk),
         .rst(rst),
@@ -130,13 +130,21 @@ module tb_madgwick_top;
         w_y = 32'b00000001011100;
         w_z = 32'b11111101010100;
         
+        q_w = 32'b0;
+        q_x = 32'b0;
+        q_y = 32'b0;
+        q_z = 32'b0;
+
+        ctrl_reg_r = 7'b0;
+        ctrl_reg_w = 7'b0;
+
         # 25;
         rst = 0;
         
         @ (posedge clk);
         
         // Read control register
-        adr_i = 6'h00;  // Control register 
+        adr_i = 6'h00;  // Control register
         stb_i = 1'b1;
         cyc_i = 1'b1;
         wait (ack_o);
@@ -149,7 +157,7 @@ module tb_madgwick_top;
         
         // Set enable flag
         ctrl_reg_w = 8'b1;
-        adr_i = 6'h00;  // Control register 
+        adr_i = 6'h00;  // Control register
         dat_i = ctrl_reg_w;
         stb_i = 1'b1;
         cyc_i = 1'b1;
@@ -163,7 +171,7 @@ module tb_madgwick_top;
         @ (posedge clk);
         
         // Read control register
-        adr_i = 6'h00;  // Control register 
+        adr_i = 6'h00;  // Control register
         stb_i = 1'b1;
         cyc_i = 1'b1;
         wait (ack_o);
@@ -260,7 +268,7 @@ module tb_madgwick_top;
 
         // Set start flag
         ctrl_reg_w = 8'b11;
-        adr_i = 6'h00;  // Control register 
+        adr_i = 6'h00;  // Control register
         dat_i = ctrl_reg_w;
         stb_i = 1'b1;
         cyc_i = 1'b1;
@@ -276,7 +284,7 @@ module tb_madgwick_top;
         // Wait for done flag
         while (!done) begin
             // Read control register
-            adr_i = 6'h00;  // Control register 
+            adr_i = 6'h00;  // Control register
             stb_i = 1'b1;
             cyc_i = 1'b1;
             wait (ack_o);
@@ -289,7 +297,7 @@ module tb_madgwick_top;
                 
         // De-assert start flag 
         ctrl_reg_w = 8'b1;
-        adr_i = 6'h00;  // Control register 
+        adr_i = 6'h00;  // Control register
         dat_i = ctrl_reg_w;
         stb_i = 1'b1;
         cyc_i = 1'b1;
@@ -303,7 +311,7 @@ module tb_madgwick_top;
         @ (posedge clk);
         
         // Read control register
-        adr_i = 6'h00;  // Control register 
+        adr_i = 6'h00;  // Control register
         stb_i = 1'b1;
         cyc_i = 1'b1;
         wait (ack_o);
