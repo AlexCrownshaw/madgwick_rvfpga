@@ -206,24 +206,24 @@ module madgwick_top(
                 ack_o <= 1'b1; // Acknowledge the cycle
                 if (we_i) begin
                     case (adr_i)
-                        'b000000: begin   // Decode control register
+                        'h00: begin   // Decode control register
                             enable <= dat_i[0];
                             start <= dat_i[1];
                         end   
-                        6'b000001: a_x <= dat_i[`ACC_WIDTH-1:0];   // Accel data input
-                        6'b000101: a_y <= dat_i[`ACC_WIDTH-1:0];
-                        6'b001001: a_z <= dat_i[`ACC_WIDTH-1:0];
-                        6'b001101: w_x <= dat_i[`GYRO_WIDTH-1:0];   // Gyro data input
-                        6'b010001: w_y <= dat_i[`GYRO_WIDTH-1:0];
-                        6'b010101: w_z <= dat_i[`GYRO_WIDTH-1:0];
+                        6'h04: a_x <= dat_i[`ACC_WIDTH-1:0];   // Accel data input
+                        6'h08: a_y <= dat_i[`ACC_WIDTH-1:0];
+                        6'h0c: a_z <= dat_i[`ACC_WIDTH-1:0];
+                        6'h10: w_x <= dat_i[`GYRO_WIDTH-1:0];   // Gyro data input
+                        6'h14: w_y <= dat_i[`GYRO_WIDTH-1:0];
+                        6'h18: w_z <= dat_i[`GYRO_WIDTH-1:0];
                     endcase
                 end else begin
                     case (adr_i)
-                        'b000000: dat_o <= ctrl_reg;    // Send control register
-                        'b011001: dat_o <= q_w;     // Send quaternion output data
-                        'b011101: dat_o <= q_x;
-                        'b100001: dat_o <= q_y;
-                        'b100101: dat_o <= q_z;
+                        6'h00: dat_o <= ctrl_reg;    // Send control register
+                        6'h1c: dat_o <= q_w;     // Send quaternion output data
+                        6'h20: dat_o <= q_x;
+                        6'h24: dat_o <= q_y;
+                        6'h28: dat_o <= q_z;
                     endcase
                 end
             end
