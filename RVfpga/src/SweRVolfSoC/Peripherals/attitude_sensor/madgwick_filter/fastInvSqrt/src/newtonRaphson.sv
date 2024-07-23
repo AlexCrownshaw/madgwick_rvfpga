@@ -66,7 +66,7 @@ module newtonRaphson #(
     } state_t;
     state_t state, next_state;
     
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             state <= IDLE;
         end else begin
@@ -92,7 +92,7 @@ module newtonRaphson #(
         endcase
     end
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             done <= 1'b0;
             

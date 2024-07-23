@@ -298,7 +298,7 @@ module madgwick (
     acc_norm_state_t acc_norm_state, acc_norm_next_state;
     
 //    // Debug state output
-//    always @ (posedge clk or negedge rst_n) begin
+//    always @ (posedge clk) begin
 //        if (!rst_n) begin
 //            acc_norm_debug_state <= ACC_NORM_IDLE;
 //        end else begin
@@ -306,7 +306,7 @@ module madgwick (
 //        end
 //    end
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             acc_norm_state <= ACC_NORM_IDLE;
         end else begin
@@ -338,7 +338,7 @@ module madgwick (
         endcase
     end
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             done_acc_vec_norm <= 1'b0;   // Reset state machine signals
     
@@ -431,7 +431,7 @@ module madgwick (
     } q_dot_state_t;
     q_dot_state_t q_dot_state, q_dot_next_state;
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             q_dot_state <= Q_DOT_IDLE;
         end else begin
@@ -530,7 +530,7 @@ module madgwick (
     assign a_y_norm_obj_func = a_y_norm <<< ACC_NORM_OBJ_FUNC_BIT_SHIFT;
     assign a_z_norm_obj_func = a_z_norm <<< ACC_NORM_OBJ_FUNC_BIT_SHIFT;
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             done_obj_func <= 0;
             
@@ -587,7 +587,7 @@ module madgwick (
     assign f2_err_grad = f2 >>> OBJ_FUNC_ERR_GRAD_BIT_SHIFT;
     assign f3_err_grad = f3 >>> OBJ_FUNC_ERR_GRAD_BIT_SHIFT;
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             done_err_grad <= 1'b0;
             
@@ -695,7 +695,7 @@ module madgwick (
     err_grad_norm_state_t err_grad_norm_state, err_grad_norm_next_state;
     
 //    // Debug state output
-//    always @ (posedge clk or negedge rst_n) begin
+//    always @ (posedge clk) begin
 //        if (!rst_n) begin
 //            err_grad_norm_debug_state <= ERR_GRAD_NORM_IDLE;
 //        end else begin
@@ -703,7 +703,7 @@ module madgwick (
 //        end
 //    end
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             err_grad_norm_state <= ERR_GRAD_NORM_IDLE;
         end else begin
@@ -735,7 +735,7 @@ module madgwick (
         endcase
     end
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             done_err_grad_norm <= 1'b0;   // Reset state machine signals
     
@@ -852,7 +852,7 @@ module madgwick (
     assign q_y = q_y_rounded[Q_TEMP_INT_LSB_INDEX+`Q_INT_WIDTH-1:Q_TEMP_INT_LSB_INDEX-`Q_FRACT_WIDTH];
     assign q_z = q_z_rounded[Q_TEMP_INT_LSB_INDEX+`Q_INT_WIDTH-1:Q_TEMP_INT_LSB_INDEX-`Q_FRACT_WIDTH];
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             done_quat_int <= 1'b0;
             
@@ -948,7 +948,7 @@ module madgwick (
     q_norm_state_t q_norm_state, q_norm_next_state;
     
 //    // Debug state output
-//    always @ (posedge clk or negedge rst_n) begin
+//    always @ (posedge clk) begin
 //        if (!rst_n) begin
 //            q_norm_debug_state <= Q_NORM_IDLE;
 //        end else begin
@@ -956,7 +956,7 @@ module madgwick (
 //        end
 //    end
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             q_norm_state <= Q_NORM_IDLE;
         end else begin
@@ -988,7 +988,7 @@ module madgwick (
         endcase
     end
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             done_quat_norm <= 1'b0;   // Reset state machine signals
     
@@ -1040,7 +1040,7 @@ module madgwick (
     
     // ---- Output quaternion assignments - Start ---- 
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             q_w_norm_output <= `Q_WIDTH'b1 << `Q_FRACT_WIDTH;
             q_x_norm_output <= `Q_WIDTH'b0;
@@ -1076,7 +1076,7 @@ module madgwick (
     } state_t;
     state_t state, next_state;
     
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             state <= IDLE;
         end else begin
@@ -1132,7 +1132,7 @@ module madgwick (
         endcase
     end
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             ready_in <= 1'b0;  // De-assert input ready signal
             

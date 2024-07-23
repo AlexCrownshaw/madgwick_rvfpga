@@ -118,7 +118,7 @@ module madgwick_top(
     } state_t;
     state_t state, next_state;
     
-    always @(posedge clk or posedge rst) begin
+    always @(posedge clk) begin
         if (rst) begin
             state <= IDLE;
         end else begin
@@ -144,7 +144,7 @@ module madgwick_top(
         endcase
     end
     
-    always @ (posedge clk or posedge rst) begin
+    always @ (posedge clk) begin
         if (rst || !enable) begin
             done <= 1'b0;   // Reset control signals
         
@@ -186,7 +186,7 @@ module madgwick_top(
     wire valid_wb;
     assign valid_wb = cyc_i && stb_i;
     
-    always @(posedge clk or posedge rst) begin
+    always @(posedge clk) begin
         if (rst) begin
             ack_o <= 1'b0;  // Reset wb signals
             dat_o <= 32'h00000000;

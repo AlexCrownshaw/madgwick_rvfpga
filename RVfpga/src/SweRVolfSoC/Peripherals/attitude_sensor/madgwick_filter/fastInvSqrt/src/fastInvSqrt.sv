@@ -127,7 +127,7 @@ module fastInvSqrt #(
     state_t state, next_state;
     
     // Sequential logic for state transition
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             state <= IDLE;
         end else begin
@@ -162,7 +162,7 @@ module fastInvSqrt #(
         endcase
     end
     
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         if (!rst_n) begin
             x_half <= 0;    // Reset registers
             y0_single <= 32'b0;
@@ -307,7 +307,7 @@ endmodule
 //    state_t state, next_state;
     
 //    // Sequential logic for state transition
-//    always @(posedge clk or negedge rst_n) begin
+//    always @(posedge clk) begin
 //        if (!rst_n) begin
 //            state <= IDLE;
 //        end else begin
@@ -339,7 +339,7 @@ endmodule
 //        endcase
 //    end
     
-//    always @ (posedge clk or negedge rst_n) begin
+//    always @ (posedge clk) begin
 //        if (!rst_n) begin
 //            x_half <= 0;    // Reset registers
 //            y0_single <= 32'b0;
