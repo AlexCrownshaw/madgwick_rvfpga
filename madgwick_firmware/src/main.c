@@ -16,7 +16,7 @@ int main(void)
 
     // Enable madgwick accelerator
     ctrl_reg = READ_ADDR(CTRL_REG_ADDR);    // Read control reg
-    WRITE_ADDR(CTRL_REG_ADDR, (ctrl_reg & CTRL_REG_ENABLE_MASK)); // Assert enable flag
+    WRITE_ADDR(CTRL_REG_ADDR, (ctrl_reg | CTRL_REG_ENABLE_MASK)); // Assert enable flag
 
     ctrl_reg = READ_ADDR(CTRL_REG_ADDR);    // Read control reg
 
@@ -28,14 +28,14 @@ int main(void)
     WRITE_ADDR(W_Y_REG_ADDR, wy[0]);
     WRITE_ADDR(W_Z_REG_ADDR, wz[0]);
 
-    // Assert start flag
+    // Start madgwick computation
     ctrl_reg = READ_ADDR(CTRL_REG_ADDR);    // Read control reg
-    WRITE_ADDR(CTRL_REG_ADDR, (ctrl_reg & CTRL_REG_START_MASK)); 
+    WRITE_ADDR(CTRL_REG_ADDR, (ctrl_reg | CTRL_REG_START_MASK)); // Assert start flag
 
-    while (!(ctrl_reg & CTRL_REG_DONE_MASK))    // Read control reg until done flag is asserted
-    {
-        ctrl_reg = READ_ADDR(CTRL_REG_ADDR);    
-    }
+    // Read control reg until done flag is asserted
+    do {
+        ctrl_reg = READ_ADDR(CTRL_REG_ADDR);
+    } while (!(ctrl_reg & CTRL_REG_DONE_MASK)); 
 
     q_w = READ_ADDR(Q_W_REG_ADDR);  // Read outputs 
     q_x = READ_ADDR(Q_X_REG_ADDR);
