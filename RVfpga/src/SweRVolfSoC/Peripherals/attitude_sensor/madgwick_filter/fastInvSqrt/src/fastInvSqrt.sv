@@ -98,7 +98,7 @@ module fastInvSqrt #(
     
     // ---- Newton-Raphson Logic ----
     reg start_newt_raph;
-    reg done_newt_raph;
+    wire done_newt_raph;
     
     reg [WORD_WIDTH-1:0] y0_newt_raph;
     

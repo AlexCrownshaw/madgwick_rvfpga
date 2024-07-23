@@ -27,7 +27,7 @@ module newtonRaphson #(
     input wire clk,
     input wire rst_n,
     input wire start,
-    input reg done,   
+    output reg done,   
     input wire [INT_WIDTH+FRACT_WIDTH-1:0] x_half,
     input wire [INT_WIDTH+FRACT_WIDTH-1:0] y0,
     output wire [INT_WIDTH+FRACT_WIDTH-1:0] y
