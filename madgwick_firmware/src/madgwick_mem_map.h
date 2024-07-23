@@ -1,3 +1,4 @@
+// Register addresses
 #define CTRL_REG_ADDR 0x80003100
 
 #define A_X_REG_ADDR 0x80003104
@@ -12,3 +13,8 @@
 #define Q_X_REG_ADDR 0x80003120
 #define Q_Y_REG_ADDR 0x80003124
 #define Q_Z_REG_ADDR 0x80003128
+
+// Control register masks
+#define CTRL_REG_ENABLE_MASK 0x1
+#define CTRL_REG_START_MASK 0x2
+#define CTRL_REG_DONE_MASK 0x4
