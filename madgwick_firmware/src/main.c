@@ -31,8 +31,7 @@ int main(void)
     ctrl_reg = READ_ADDR(CTRL_REG_ADDR);    // Read control reg
     WRITE_ADDR(CTRL_REG_ADDR, (ctrl_reg | CTRL_REG_ENABLE_MASK)); // Assert enable flag
 
-    // int size = sizeof(ax) / sizeof(int);
-    int size = 2;
+    int size = sizeof(ax) / sizeof(int);
     for (int i = 0; i < size; i++)
     {
         get_attitude(i);
