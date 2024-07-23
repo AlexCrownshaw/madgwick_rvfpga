@@ -5,13 +5,15 @@
 #define READ_ADDR(dir) (*(volatile unsigned *)dir)
 
 
-volatile unsigned char ctrl_reg;
+volatile unsigned int ctrl_reg;
 volatile unsigned long q_w, q_x, q_y, q_z;
 
 int main(void)
 {
 
     ctrl_reg = READ_ADDR(CTRL_REG_ADDR);    // Read control reg
+
+    WRITE_ADDR(CTRL_REG_ADDR, 0x0); // Reset madgwick accelerator
 
     WRITE_ADDR(CTRL_REG_ADDR, 0x1); // Enable madgwick accelerator
 
