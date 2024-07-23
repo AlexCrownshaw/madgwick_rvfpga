@@ -1,11 +1,11 @@
-// #if defined(D_NEXYS_A7)
-//    #include <bsp_printf.h>
-//    #include <bsp_mem_map.h>
-//    #include <bsp_version.h>
-// #else
-//    PRE_COMPILED_MSG("no platform was defined")
-// #endif
-// #include <psp_api.h>
+#if defined(D_NEXYS_A7)
+   #include <bsp_printf.h>
+   #include <bsp_mem_map.h>
+   #include <bsp_version.h>
+#else
+   PRE_COMPILED_MSG("no platform was defined")
+#endif
+#include <psp_api.h>
 
 #include "madgwick_mem_map.h"
 #include "test_vectors.h"
@@ -21,7 +21,7 @@ void get_attitude(unsigned int);
 
 int main(void)
 {
-    // uartInit();
+    uartInit();
 
     // Reset madgwick accelerator
     ctrl_reg = READ_ADDR(CTRL_REG_ADDR);    // Read control reg
@@ -36,7 +36,7 @@ int main(void)
     for (int i = 0; i < size; i++)
     {
         get_attitude(i);
-        // printfNexys("%d,%d,%d,%d", q_w, q_x, q_y, q_z);
+        printfNexys("%d,%d,%d,%d", q_w, q_x, q_y, q_z);
     }
 
     return 0;
