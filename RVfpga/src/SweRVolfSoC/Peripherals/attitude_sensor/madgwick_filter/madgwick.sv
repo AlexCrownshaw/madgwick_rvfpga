@@ -70,13 +70,16 @@ module madgwick (
 //    ,output wire signed [`ACC_WIDTH-1:0] a_x_norm_debug, // Acc Norm
 //    output wire signed [`ACC_WIDTH-1:0] a_y_norm_debug,
 //    output wire signed [`ACC_WIDTH-1:0] a_z_norm_debug,
-//    ,output wire [`ACC_MAG_SQR_WIDTH-1:0] data_in_invSqrtAccNorm_debug,
+//    output wire signed [(`ACC_WIDTH+`ACC_MAG_SQR_WIDTH)-1:0] a_x_norm_temp_debug,
+//    output wire signed [(`ACC_WIDTH+`ACC_MAG_SQR_WIDTH)-1:0] a_y_norm_temp_debug,
+//    output wire signed [(`ACC_WIDTH+`ACC_MAG_SQR_WIDTH)-1:0] a_z_norm_temp_debug,
+//    output wire [`ACC_MAG_SQR_WIDTH-1:0] data_in_invSqrtAccNorm_debug,
 //    output wire valid_in_invSqrtAccNorm_debug,
 //    output wire ready_in_invSqrtAccNorm_debug,
     
 //    output wire signed [`ACC_MAG_SQR_WIDTH-1:0] data_out_invSqrtAccNorm_debug,
 //    output wire valid_out_invSqrtAccNorm_debug,
-//    output wire ready_out_invSqrtAccNorm_debug
+//    output wire ready_out_invSqrtAccNorm_debug,
 //    output reg start_acc_vec_norm_debug,
 //    output reg done_acc_vec_norm_debug
 
@@ -104,6 +107,7 @@ module madgwick (
 //    output reg signed [`Q_WIDTH+`Q_TWO_WIDTH-1:0] a_x_norm_obj_func_debug,
 //    output reg signed [`Q_WIDTH+`Q_TWO_WIDTH-1:0] a_y_norm_obj_func_debug,
 //    output reg signed [`Q_WIDTH+`Q_TWO_WIDTH-1:0] a_z_norm_obj_func_debug,
+//    output reg signed [`OBJ_FUNC_WIDTH-1:0] one_obj_func_debug,
 //    output reg start_obj_func_debug,
 //    output reg done_obj_func_debug
     
@@ -530,6 +534,8 @@ module madgwick (
     assign a_y_norm_obj_func = a_y_norm <<< ACC_NORM_OBJ_FUNC_BIT_SHIFT;
     assign a_z_norm_obj_func = a_z_norm <<< ACC_NORM_OBJ_FUNC_BIT_SHIFT;
     
+    parameter signed [`OBJ_FUNC_WIDTH-1:0] one_obj_func = 1'b1 << (`Q_FRACT_WIDTH + `Q_TWO_FRACT_WIDTH);
+
     always @ (posedge clk) begin
         if (!rst_n) begin
             done_obj_func <= 0;
@@ -541,7 +547,7 @@ module madgwick (
             if (start_obj_func && !done_obj_func) begin
                 f1 <= q_x_two_obj_func * q_z_norm - q_w_two_obj_func * q_y_norm - a_x_norm_obj_func;
                 f2 <= q_w_two_obj_func * q_x_norm + q_y_two_obj_func * q_z_norm - a_y_norm_obj_func;
-                f3 <= (1'b1 << `Q_FRACT_WIDTH+`Q_TWO_FRACT_WIDTH) - q_x_two_obj_func * q_x_norm - q_y_two_obj_func * q_y_norm - a_z_norm_obj_func;
+                f3 <= one_obj_func - q_x_two_obj_func * q_x_norm - q_y_two_obj_func * q_y_norm - a_z_norm_obj_func;
                 done_obj_func <= 1'b1;
             end else begin
                 done_obj_func <= 1'b0;
@@ -1233,6 +1239,9 @@ module madgwick (
 //    assign a_x_norm_debug = a_x_norm;
 //    assign a_y_norm_debug = a_y_norm;
 //    assign a_z_norm_debug = a_z_norm;
+//    assign a_x_norm_temp_debug = a_x_norm_temp;
+//    assign a_y_norm_temp_debug = a_y_norm_temp;
+//    assign a_z_norm_temp_debug = a_z_norm_temp;
 //    assign data_in_invSqrtAccNorm_debug = data_in_invSqrtAccNorm;
 //    assign valid_in_invSqrtAccNorm_debug = valid_in_invSqrtAccNorm;
 //    assign ready_in_invSqrtAccNorm_debug = ready_in_invSqrtAccNorm;
@@ -1266,6 +1275,7 @@ module madgwick (
 //    assign a_x_norm_obj_func_debug = a_x_norm_obj_func;
 //    assign a_y_norm_obj_func_debug = a_y_norm_obj_func;
 //    assign a_z_norm_obj_func_debug = a_z_norm_obj_func;
+//    assign one_obj_func_debug = one_obj_func_debug;
 //    assign start_obj_func_debug = start_obj_func;
 //    assign done_obj_func_debug = done_obj_func;
     
