@@ -42,6 +42,9 @@ module fastInvSqrt_q12_4_tb;
     
 //    wire [15:0] data_in_fixToSingle;
 //    wire [31:0] data_in_singleToFix;
+
+//    wire start_newt_raph;
+//    wire done_newt_raph;
     
     // Clock generation
     initial begin
@@ -61,6 +64,8 @@ module fastInvSqrt_q12_4_tb;
         .data_out(data_out),
         .valid_out(valid_out),
         .ready_out(ready_out)
+//        ,.start_newt_raph(start_newt_raph),
+//        .done_newt_raph(done_newt_raph)
         
 //        // Debug internal signals
 //        ,

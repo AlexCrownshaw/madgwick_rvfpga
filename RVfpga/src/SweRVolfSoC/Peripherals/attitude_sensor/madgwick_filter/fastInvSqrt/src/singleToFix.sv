@@ -43,7 +43,6 @@ module singleToFix #(
 
     reg [31:0] normalised_mantissa;
     reg [31:0] fixed_point_value;
-    reg [31:0] rounding_bit;
     integer shift_amount;
 
     // Convert to fixed point
@@ -53,7 +52,7 @@ module singleToFix #(
             normalised_mantissa = {1'b0, mantissa} >> (23 - FRACT_WIDTH + 1);
             shift_amount = -BIAS + 1;
         end else begin
-            // Normalised numbers
+            // Normalized numbers
             normalised_mantissa = {1'b1, mantissa};
             shift_amount = exponent - BIAS - (23 - FRACT_WIDTH);
         end
@@ -66,9 +65,11 @@ module singleToFix #(
         end
 
         // Rounding: Check the bit just below the LSB of the target fixed-point representation
-        rounding_bit = normalised_mantissa >> (23 - FRACT_WIDTH - 1);
-
-        if (rounding_bit & 1) begin
+        if (shift_amount < 0) begin
+            if ((normalised_mantissa >> (-shift_amount - 1)) & 1) begin
+                fixed_point_value = fixed_point_value + 1;
+            end
+        end else if ((normalised_mantissa << shift_amount) & (1 << (23 - FRACT_WIDTH - 1))) begin
             fixed_point_value = fixed_point_value + 1;
         end
 
