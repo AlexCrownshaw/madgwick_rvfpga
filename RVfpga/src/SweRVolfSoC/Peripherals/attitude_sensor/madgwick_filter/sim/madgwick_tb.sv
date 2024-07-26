@@ -20,6 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 `include "madgwickDefines.vh"
+`include "test_vectors.vh"
+
 
 module madgwick_tb;
 
@@ -312,6 +314,8 @@ module madgwick_tb;
         // ---- Debug signals inst - End ----
     );
     
+    integer i;
+
     initial begin
     
         // Init
@@ -326,51 +330,29 @@ module madgwick_tb;
         ready_out = 1'b0;
         #25 rst_n = 1;
         
-        a_x = `ACC_WIDTH'b11110111000;
-        a_y = `ACC_WIDTH'b00101001010;
-        a_z = `ACC_WIDTH'b00011000100;
-        w_x = `GYRO_WIDTH'b11111100011111;
-        w_y = `GYRO_WIDTH'b00000001011100;
-        w_z = `GYRO_WIDTH'b11111101010100;
-        valid_in = 1'b1;
-        wait (valid_in && ready_in);
-        @ (posedge clk);
-        valid_in = 1'b0;
-        ready_out = 1'b1;
-        wait(valid_out && ready_out);
-        @ (posedge clk);
-        ready_out = 1'b0;
-
-        a_x = `ACC_WIDTH'b11110110100;
-        a_y = `ACC_WIDTH'b00101001001;
-        a_z = `ACC_WIDTH'b00011000110;
-        w_x = `GYRO_WIDTH'b11111100011100;
-        w_y = `GYRO_WIDTH'b00000001010010;
-        w_z = `GYRO_WIDTH'b11111101001000;
-        valid_in = 1'b1;
-        wait (valid_in && ready_in);
-        @ (posedge clk);
-        valid_in = 1'b0;
-        ready_out = 1'b1;
-        wait(valid_out && ready_out);
-        @ (posedge clk);
-        ready_out = 1'b0;
-        
-        a_x = `ACC_WIDTH'b11110101101;
-        a_y = `ACC_WIDTH'b00101000110;
-        a_z = `ACC_WIDTH'b00011001010;
-        w_x = `GYRO_WIDTH'b11111100010111;
-        w_y = `GYRO_WIDTH'b00000001001101;
-        w_z = `GYRO_WIDTH'b11111101000011;
-        valid_in = 1'b1;
-        wait (valid_in && ready_in);
-        @ (posedge clk);
-        valid_in = 1'b0;
-        ready_out = 1'b1;
-        wait(valid_out && ready_out);
-        @ (posedge clk);
-        ready_out = 1'b0;
-        
+        for (i = 0; i < `NUM_ELEMENTS; i = i + 1) begin
+            @ (posedge clk);
+            
+            a_x = AX_DATA[i];
+            a_y = AY_DATA[i];
+            a_z = AZ_DATA[i];
+            w_x = WX_DATA[i];
+            w_y = WY_DATA[i];
+            w_z = WZ_DATA[i];
+            
+            valid_in = 1'b1;
+            wait (valid_in && ready_in);
+            @ (posedge clk);
+            valid_in = 1'b0;
+            ready_out = 1'b1;
+            wait(valid_out && ready_out);
+            @ (posedge clk);
+            ready_out = 1'b0;
+            
+            // Display the values of i, q_w_norm_output, q_x_norm_output, q_y_norm_output, and q_z_norm_output
+            $display("AX_DATA: %b, AY_DATA: %b, AZ_DATA: %b", AX_DATA[i], AY_DATA[i], AX_DATA[i]);
+            $display("Iteration %0d: a_x = %b, a_y = %b, a_z = %b, q_w = %b, q_x = %b, q_y = %b, q_z = %b", i, a_x, a_y, a_z, q_w_norm_output, q_x_norm_output, q_y_norm_output, q_z_norm_output);
+        end
     end
     
 endmodule
