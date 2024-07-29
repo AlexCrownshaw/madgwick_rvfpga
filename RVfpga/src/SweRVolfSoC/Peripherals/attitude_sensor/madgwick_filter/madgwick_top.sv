@@ -21,6 +21,7 @@
 
 
 module madgwick_top(
+
     // ---- Wishbone interface signals - Start ----
     
     input wire clk,           // Clock signal
@@ -31,9 +32,15 @@ module madgwick_top(
     input wire we_i,          // Write enable input
     input wire stb_i,         // Strobe input
     input wire cyc_i,         // Cycle input
-    output reg ack_o          // Acknowledge output
+    output reg ack_o,         // Acknowledge output
     
     // ---- Wishbone interface signals - End ----
+    
+    // ---- Interupts interface signals - Start ----
+    
+    output reg inta_o         // Interrupt signal
+    
+    // ---- Interupts interface signals - End ----
     
     // ---- Debug I/O signals - Start ----
     
@@ -175,13 +182,21 @@ module madgwick_top(
     
     // ---- Madgwick control path - End ----
     
+    // ---- Interrupt interface - Start ----
+    
+    reg int_enable;
+    assign inta_o = int_enable & done;
+    
+    // ---- Interrupt interface - End ----
+    
     // ---- Wishbone interface - Start ----
     
     reg [7:0] ctrl_reg;     // Control register assignment
     assign ctrl_reg[0] = enable;
     assign ctrl_reg[1] = start;
     assign ctrl_reg[2] = done;
-    assign ctrl_reg[7:3] = 5'b0;
+    assign ctrl_reg[3] = int_enable;
+    assign ctrl_reg[7:3] = 4'b0;
     
     wire valid_wb;
     assign valid_wb = cyc_i && stb_i;
@@ -209,6 +224,7 @@ module madgwick_top(
                         'h00: begin   // Decode control register
                             enable <= dat_i[0];
                             start <= dat_i[1];
+                            int_enable <= dat_i[3];
                         end   
                         6'h04: a_x <= dat_i[`ACC_WIDTH-1:0];   // Accel data input
                         6'h08: a_y <= dat_i[`ACC_WIDTH-1:0];
