@@ -83,14 +83,15 @@
 % }
 
 %% Parameters
-% Input data properties 
+% Input data properties
+DATA_RANGE = 1000;
 INPUT_DATA_FILE_PATH = "processing\Data\mpu6050_data\MPU6050_ESP32_10000_points.csv";
 data_in = readtable(INPUT_DATA_FILE_PATH);
-data_in = data_in(1:50, :);
+data_in = data_in(1:DATA_RANGE, :);
 
 REF_DATA_PATH = "processing\Data\filtered_data\filtered_output_23-06-24_16-47-37.csv";
 data_out_ref = readtable(REF_DATA_PATH);
-data_out_ref = data_out_ref(1:50, :);
+data_out_ref = data_out_ref(1:DATA_RANGE, :);
 
 global ACC_INPUT_RANGE
 ACC_INPUT_RANGE = 2 * 9.81;
@@ -118,6 +119,13 @@ ACC_MAG_SQR_INT_WIDTH = 12;
 ACC_MAG_SQR_FRACT_WIDTH = 4;
 ACC_MAG_SQR_WIDTH = ACC_MAG_SQR_INT_WIDTH + ACC_MAG_SQR_FRACT_WIDTH;
 
+global Q_HAT_DOT_WIDTH;
+global Q_HAT_DOT_INT_WIDTH;
+global Q_HAT_DOT_FRACT_WIDTH;
+Q_HAT_DOT_INT_WIDTH = 8;
+Q_HAT_DOT_FRACT_WIDTH = 8;
+Q_HAT_DOT_WIDTH = Q_HAT_DOT_INT_WIDTH + Q_HAT_DOT_FRACT_WIDTH;
+
 global Q_HAT_DOT_MAG_SQR_INT_WIDTH
 global Q_HAT_DOT_MAG_SQR_FRACT_WIDTH
 global Q_HAT_DOT_MAG_SQR_WIDTH
@@ -139,12 +147,12 @@ Q_INT_WIDTH = 2;
 Q_FRACT_WIDTH = 14;
 Q_WIDTH = Q_INT_WIDTH + Q_FRACT_WIDTH;
 
-global Q_HAT_DOT_TRUNC_WIDTH
-global Q_HAT_DOT_TRUNC_INT_WIDTH
-global Q_HAT_DOT_TRUNC_FRACT_WIDTH
-Q_HAT_DOT_TRUNC_INT_WIDTH = 8;
-Q_HAT_DOT_TRUNC_FRACT_WIDTH = 8;
-Q_HAT_DOT_TRUNC_WIDTH = Q_HAT_DOT_TRUNC_INT_WIDTH + Q_HAT_DOT_TRUNC_FRACT_WIDTH;
+% global Q_HAT_DOT_TRUNC_WIDTH
+% global Q_HAT_DOT_TRUNC_INT_WIDTH
+% global Q_HAT_DOT_TRUNC_FRACT_WIDTH
+% Q_HAT_DOT_TRUNC_INT_WIDTH = 8;
+% Q_HAT_DOT_TRUNC_FRACT_WIDTH = 8;
+% Q_HAT_DOT_TRUNC_WIDTH = Q_HAT_DOT_TRUNC_INT_WIDTH + Q_HAT_DOT_TRUNC_FRACT_WIDTH;
 
 %% Constants
 global DELTA_T
@@ -188,6 +196,9 @@ writetable(sim_data, "processing/Data/MATLAB_sim_data/madgwick_sim_data.csv")
 
 create_header_file();
 
+generate_test_vectors(data_in);
+generate_verilog_test_vectors(data_in);
+
 %% Evaluate Error
 q_w_mse = immse(table2array(data_out_ref(:, 7)),  data_out(:, 1));
 q_x_mse = immse(table2array(data_out_ref(:, 8)),  data_out(:, 2));
@@ -223,15 +234,17 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     global GYRO_WIDTH
     global ACC_MAG_SQR_FRACT_WIDTH
     global ACC_MAG_SQR_WIDTH
+    global Q_HAT_DOT_WIDTH;
+    global Q_HAT_DOT_FRACT_WIDTH;
     global Q_HAT_DOT_MAG_SQR_FRACT_WIDTH
     global Q_HAT_DOT_MAG_SQR_WIDTH
     global Q_MAG_SQR_FRACT_WIDTH
     global Q_MAG_SQR_WIDTH
     global Q_FRACT_WIDTH
     global Q_WIDTH
-    global Q_HAT_DOT_TRUNC_WIDTH
-    global Q_HAT_DOT_TRUNC_INT_WIDTH
-    global Q_HAT_DOT_TRUNC_FRACT_WIDTH
+    % global Q_HAT_DOT_TRUNC_WIDTH
+    % global Q_HAT_DOT_TRUNC_INT_WIDTH
+    % global Q_HAT_DOT_TRUNC_FRACT_WIDTH
     global DELTA_T
     global BETA
     global Q_WIDTH
@@ -258,9 +271,9 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     global ACC_NORM_OBJ_FUNC_WIDTH
     global ACC_NORM_OBJ_FUNC_INT_WIDTH
     global ACC_NORM_OBJ_FUNC_FRACT_WIDTH
-    global Q_HAT_DOT_WIDTH
-    global Q_HAT_DOT_INT_WIDTH
-    global Q_HAT_DOT_FRACT_WIDTH
+    % global Q_HAT_DOT_WIDTH
+    % global Q_HAT_DOT_INT_WIDTH
+    % global Q_HAT_DOT_FRACT_WIDTH
     global DELTA_T_BIN
     global DELTA_T_WIDTH
     global DELTA_T_INT_WIDTH
@@ -378,14 +391,19 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     q_hat_dot_y_fix = j_12_23_fix * f_2_err_grad_fix - j_33_fix * f_3_err_grad_fix - j_13_22_fix * f_1_err_grad_fix;   % SEqHatDot_3 = J_12or23 * f_2 - J_33 * f_3 - J_13or22 * f_1;
     q_hat_dot_z_fix = j_14_21_fix * f_1_err_grad_fix + j_11_24_fix * f_2_err_grad_fix; %  SEqHatDot_4 = J_14or21 * f_1 + J_11or24 * f_2;
 
-    Q_HAT_DOT_WIDTH = q_hat_dot_w_fix.WordLength;
-    Q_HAT_DOT_INT_WIDTH = Q_HAT_DOT_WIDTH - q_hat_dot_w_fix.FractionLength;
-    Q_HAT_DOT_FRACT_WIDTH = q_hat_dot_w_fix.FractionLength;
+    % Q_HAT_DOT_WIDTH = q_hat_dot_w_fix.WordLength;
+    % Q_HAT_DOT_INT_WIDTH = Q_HAT_DOT_WIDTH - q_hat_dot_w_fix.FractionLength;
+    % Q_HAT_DOT_FRACT_WIDTH = q_hat_dot_w_fix.FractionLength;
 
-    q_hat_dot_w_trun_fix = fi(double(q_hat_dot_w_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
-    q_hat_dot_x_trun_fix = fi(double(q_hat_dot_x_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
-    q_hat_dot_y_trun_fix = fi(double(q_hat_dot_y_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
-    q_hat_dot_z_trun_fix = fi(double(q_hat_dot_z_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
+    % q_hat_dot_w_trun_fix = fi(double(q_hat_dot_w_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
+    % q_hat_dot_x_trun_fix = fi(double(q_hat_dot_x_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
+    % q_hat_dot_y_trun_fix = fi(double(q_hat_dot_y_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
+    % q_hat_dot_z_trun_fix = fi(double(q_hat_dot_z_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
+
+    q_hat_dot_w_trun_fix = fi(double(q_hat_dot_w_fix), 1, Q_HAT_DOT_WIDTH, Q_HAT_DOT_FRACT_WIDTH);
+    q_hat_dot_x_trun_fix = fi(double(q_hat_dot_x_fix), 1, Q_HAT_DOT_WIDTH, Q_HAT_DOT_FRACT_WIDTH);
+    q_hat_dot_y_trun_fix = fi(double(q_hat_dot_y_fix), 1, Q_HAT_DOT_WIDTH, Q_HAT_DOT_FRACT_WIDTH);
+    q_hat_dot_z_trun_fix = fi(double(q_hat_dot_z_fix), 1, Q_HAT_DOT_WIDTH, Q_HAT_DOT_FRACT_WIDTH);
 
     % q_hat_dot_w_pad_fix = fi(double(q_hat_dot_w_fix), 1, Q_HAT_DOT_WIDTH+3, Q_HAT_DOT_FRACT_WIDTH);
     % q_hat_dot_x_pad_fix = fi(double(q_hat_dot_x_fix), 1, Q_HAT_DOT_WIDTH+3, Q_HAT_DOT_FRACT_WIDTH);
@@ -402,14 +420,25 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     q_hat_dot_norm_y_fix = q_hat_dot_y_trun_fix * q_hat_dot_mag_inv_fix;
     q_hat_dot_norm_z_fix = q_hat_dot_z_trun_fix * q_hat_dot_mag_inv_fix;
 
-    q_hat_dot_norm_w_trun_fix = fi(double(q_hat_dot_norm_w_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
-    q_hat_dot_norm_x_trun_fix = fi(double(q_hat_dot_norm_x_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
-    q_hat_dot_norm_y_trun_fix = fi(double(q_hat_dot_norm_y_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
-    q_hat_dot_norm_z_trun_fix = fi(double(q_hat_dot_norm_z_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
+    % q_hat_dot_norm_w_trun_fix = fi(double(q_hat_dot_norm_w_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
+    % q_hat_dot_norm_x_trun_fix = fi(double(q_hat_dot_norm_x_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
+    % q_hat_dot_norm_y_trun_fix = fi(double(q_hat_dot_norm_y_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
+    % q_hat_dot_norm_z_trun_fix = fi(double(q_hat_dot_norm_z_fix), 1, Q_HAT_DOT_TRUNC_WIDTH, Q_HAT_DOT_TRUNC_FRACT_WIDTH);
+
+    q_hat_dot_norm_w_trun_fix = fi(double(q_hat_dot_norm_w_fix), 1, Q_HAT_DOT_WIDTH, Q_HAT_DOT_FRACT_WIDTH);
+    q_hat_dot_norm_x_trun_fix = fi(double(q_hat_dot_norm_x_fix), 1, Q_HAT_DOT_WIDTH, Q_HAT_DOT_FRACT_WIDTH);
+    q_hat_dot_norm_y_trun_fix = fi(double(q_hat_dot_norm_y_fix), 1, Q_HAT_DOT_WIDTH, Q_HAT_DOT_FRACT_WIDTH);
+    q_hat_dot_norm_z_trun_fix = fi(double(q_hat_dot_norm_z_fix), 1, Q_HAT_DOT_WIDTH, Q_HAT_DOT_FRACT_WIDTH);
     
     % Combine acceleration and gyro rate quaternion derivative estimates and integrate
-    BETA_WIDTH = Q_HAT_DOT_TRUNC_FRACT_WIDTH;
-    BETA_FRACT_WIDTH = Q_HAT_DOT_TRUNC_FRACT_WIDTH;
+    % BETA_WIDTH = Q_HAT_DOT_TRUNC_FRACT_WIDTH;
+    % BETA_FRACT_WIDTH = Q_HAT_DOT_TRUNC_FRACT_WIDTH;
+    % BETA_INT_WIDTH = BETA_WIDTH - BETA_FRACT_WIDTH;
+    % beta_fix = fi(BETA, 1, BETA_WIDTH, BETA_FRACT_WIDTH);
+    % BETA_BIN = beta_fix.bin;
+
+    BETA_WIDTH = Q_HAT_DOT_FRACT_WIDTH;
+    BETA_FRACT_WIDTH = Q_HAT_DOT_FRACT_WIDTH;
     BETA_INT_WIDTH = BETA_WIDTH - BETA_FRACT_WIDTH;
     beta_fix = fi(BETA, 1, BETA_WIDTH, BETA_FRACT_WIDTH);
     BETA_BIN = beta_fix.bin;
@@ -545,9 +574,9 @@ function [] = create_header_file()
     global Q_HAT_DOT_WIDTH
     global Q_HAT_DOT_INT_WIDTH
     global Q_HAT_DOT_FRACT_WIDTH
-    global Q_HAT_DOT_TRUNC_WIDTH
-    global Q_HAT_DOT_TRUNC_INT_WIDTH
-    global Q_HAT_DOT_TRUNC_FRACT_WIDTH
+    % global Q_HAT_DOT_TRUNC_WIDTH
+    % global Q_HAT_DOT_TRUNC_INT_WIDTH
+    % global Q_HAT_DOT_TRUNC_FRACT_WIDTH
     global Q_HAT_DOT_MAG_SQR_WIDTH
     global Q_HAT_DOT_MAG_SQR_INT_WIDTH
     global Q_HAT_DOT_MAG_SQR_FRACT_WIDTH
@@ -598,9 +627,9 @@ function [] = create_header_file()
         sprintf('`define Q_HAT_DOT_WIDTH %d\n', Q_HAT_DOT_WIDTH)
         sprintf('`define Q_HAT_DOT_INT_WIDTH %d\n', Q_HAT_DOT_INT_WIDTH)
         sprintf('`define Q_HAT_DOT_FRACT_WIDTH %d\n\n', Q_HAT_DOT_FRACT_WIDTH)
-        sprintf('`define Q_HAT_DOT_TRUNC_WIDTH %d\n', Q_HAT_DOT_TRUNC_WIDTH)
-        sprintf('`define Q_HAT_DOT_TRUNC_INT_WIDTH %d\n', Q_HAT_DOT_TRUNC_INT_WIDTH)
-        sprintf('`define Q_HAT_DOT_TRUNC_FRACT_WIDTH %d\n\n', Q_HAT_DOT_TRUNC_FRACT_WIDTH)
+        % sprintf('`define Q_HAT_DOT_TRUNC_WIDTH %d\n', Q_HAT_DOT_TRUNC_WIDTH)
+        % sprintf('`define Q_HAT_DOT_TRUNC_INT_WIDTH %d\n', Q_HAT_DOT_TRUNC_INT_WIDTH)
+        % sprintf('`define Q_HAT_DOT_TRUNC_FRACT_WIDTH %d\n\n', Q_HAT_DOT_TRUNC_FRACT_WIDTH)
         sprintf('`define Q_HAT_DOT_MAG_SQR_WIDTH %d\n', Q_HAT_DOT_MAG_SQR_WIDTH)
         sprintf('`define Q_HAT_DOT_MAG_SQR_INT_WIDTH %d\n', Q_HAT_DOT_MAG_SQR_INT_WIDTH)
         sprintf('`define Q_HAT_DOT_MAG_SQR_FRACT_WIDTH %d\n\n', Q_HAT_DOT_MAG_SQR_FRACT_WIDTH)
@@ -614,6 +643,142 @@ function [] = create_header_file()
 
     fclose(header_file);
 
+end
+
+%% Generate test vectors 
+function generate_test_vectors(data_in)
+
+    global ACC_WIDTH
+    global ACC_FRACT_WIDTH
+    global GYRO_WIDTH
+    global GYRO_FRACT_WIDTH
+
+    % Define the vector names
+    vectorNames = {'ax', 'ay', 'az', 'wx', 'wy', 'wz'};
+    
+    % Define the header file content
+    headerContent = sprintf('#ifndef TEST_VECTORS\n#define TEST_VECTORS\n\n');
+    
+    % Add vector definitions to the header content
+    for i = 1:length(vectorNames)
+        if i <= 3
+            word_width = ACC_WIDTH;
+            fract_width = ACC_FRACT_WIDTH;
+        else
+            word_width = GYRO_WIDTH;
+            fract_width = GYRO_FRACT_WIDTH;
+        end
+        headerContent = sprintf('%sint %s[%d] = {\n', headerContent, vectorNames{i}, height(data_in));
+        for j = 1:height(data_in)
+            value = int(fi(data_in.(vectorNames{i})(j), 1, word_width, fract_width));
+            if mod(j, 10) == 1
+                headerContent = sprintf('%s    ', headerContent);
+            end
+            headerContent = sprintf('%s%d, ', headerContent, value);
+            if mod(j, 10) == 0
+                headerContent = sprintf('%s\n', headerContent);
+            end
+        end
+        headerContent = sprintf('%s    };\n\n', headerContent);
+    end
+    
+    % Add the closing parts of the header file
+    headerContent = sprintf('%s#endif // TEST_VECTORS\n', headerContent);
+    
+    % Write the content to a header file
+    fileID = fopen('test_vectors.h', 'w');
+    fprintf(fileID, '%s', headerContent);
+    fclose(fileID);    
+end
+
+%%
+function [] = generate_verilog_test_vectors(data_in)
+
+    global ACC_WIDTH
+    global ACC_FRACT_WIDTH
+    global GYRO_WIDTH
+    global GYRO_FRACT_WIDTH
+    
+    % Open the file to write
+    fileID = fopen('RVfpga/src/SweRVolfSoC/Peripherals/attitude_sensor/madgwick_filter/sim/test_vectors.svh', 'w');
+    
+    % Write the define statements for array size
+    num_elements = height(data_in);
+
+    fprintf(fileID, '`include "madgwickDefines.vh"\n\n');
+    fprintf(fileID, '`define NUM_ELEMENTS %d\n\n', num_elements);
+    
+    % Write the parameter arrays
+    fprintf(fileID, sprintf('parameter logic signed [`ACC_WIDTH-1:0] AX_TEST_VECTOR[`NUM_ELEMENTS] = {\n'));
+    for i = 1:num_elements
+        a_x_value = fi(data_in.ax(i), 1, ACC_WIDTH, ACC_FRACT_WIDTH).bin;
+        if i < num_elements
+            fprintf(fileID, "    %d\'b%s,\n", ACC_WIDTH, a_x_value);
+        else
+            fprintf(fileID, "    %d\'b%s\n", ACC_WIDTH, a_x_value);  % No comma for last element
+        end
+    end
+    fprintf(fileID, '};\n\n');
+    
+    fprintf(fileID, sprintf('parameter logic signed [`ACC_WIDTH-1:0] AY_TEST_VECTOR[`NUM_ELEMENTS] = {\n'));
+    for i = 1:num_elements
+        a_y_value = fi(data_in.ay(i), 1, ACC_WIDTH, ACC_FRACT_WIDTH).bin;
+        if i < num_elements
+            fprintf(fileID, "    %d\'b%s,\n", ACC_WIDTH, a_y_value);
+        else
+            fprintf(fileID, "    %d\'b%s\n", ACC_WIDTH, a_y_value);  % No comma for last element
+        end
+    end
+    fprintf(fileID, '};\n\n');
+    
+    fprintf(fileID, sprintf('parameter logic signed [`ACC_WIDTH-1:0] AZ_TEST_VECTOR[`NUM_ELEMENTS] = {\n'));
+    for i = 1:num_elements
+        a_z_value = fi(data_in.az(i), 1, ACC_WIDTH, ACC_FRACT_WIDTH).bin;
+        if i < num_elements
+            fprintf(fileID, "    %d\'b%s,\n", ACC_WIDTH, a_z_value);
+        else
+            fprintf(fileID, "    %d\'b%s\n", ACC_WIDTH, a_z_value);  % No comma for last element
+        end
+    end
+    fprintf(fileID, '};\n\n');
+    
+    fprintf(fileID, sprintf('parameter logic signed [`GYRO_WIDTH-1:0] WX_TEST_VECTOR[`NUM_ELEMENTS] = {\n'));
+    for i = 1:num_elements
+        w_x_value = fi(data_in.wx(i), 1, GYRO_WIDTH, GYRO_FRACT_WIDTH).bin;
+        if i < num_elements
+            fprintf(fileID, "    %d\'b%s,\n", GYRO_WIDTH, w_x_value);
+        else
+            fprintf(fileID, "    %d\'b%s\n", GYRO_WIDTH, w_x_value);  % No comma for last element
+        end
+    end
+    fprintf(fileID, '};\n\n');
+    
+    fprintf(fileID, sprintf('parameter logic signed [`GYRO_WIDTH-1:0] WY_TEST_VECTOR[`NUM_ELEMENTS] = {\n'));
+    for i = 1:num_elements
+        w_y_value = fi(data_in.wy(i), 1, GYRO_WIDTH, GYRO_FRACT_WIDTH).bin;
+        if i < num_elements
+            fprintf(fileID, "    %d\'b%s,\n", GYRO_WIDTH, w_y_value);
+        else
+            fprintf(fileID, "    %d\'b%s\n", GYRO_WIDTH, w_y_value);  % No comma for last element
+        end
+    end
+    fprintf(fileID, '};\n\n');
+    
+    fprintf(fileID, sprintf('parameter logic signed [`GYRO_WIDTH-1:0] WZ_TEST_VECTOR[`NUM_ELEMENTS] = {\n'));
+    for i = 1:num_elements
+        w_z_value = fi(data_in.wz(i), 1, GYRO_WIDTH, GYRO_FRACT_WIDTH).bin;
+        if i < num_elements
+            fprintf(fileID, "    %d\'b%s,\n", GYRO_WIDTH, w_z_value);
+        else
+            fprintf(fileID, "    %d\'b%s\n", GYRO_WIDTH, w_z_value);  % No comma for last element
+        end
+    end
+    fprintf(fileID, '};\n\n');
+    
+    % Close the file
+    fclose(fileID);
+    
+    disp('test_vectors.vh file generated successfully.');
 end
 
 %% Input Data Analysis Function
