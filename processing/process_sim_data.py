@@ -73,8 +73,6 @@ def main():
     plt.grid()
     plt.show()
 
-    print(euler_angles)
-
 
 if __name__ == "__main__":
     main()
