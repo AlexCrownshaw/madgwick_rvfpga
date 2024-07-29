@@ -181,7 +181,7 @@ module madgwick_top(
     assign ctrl_reg[0] = enable;
     assign ctrl_reg[1] = start;
     assign ctrl_reg[2] = done;
-    assign ctrl_reg[7:3] = 0;
+    assign ctrl_reg[7:3] = 5'b0;
     
     wire valid_wb;
     assign valid_wb = cyc_i && stb_i;
