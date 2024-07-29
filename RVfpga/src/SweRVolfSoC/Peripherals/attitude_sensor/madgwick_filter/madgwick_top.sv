@@ -206,8 +206,11 @@ module madgwick_top(
             ack_o <= 1'b0;  // Reset wb signals
             dat_o <= 32'h00000000;
             
+            inta_o <= 1'b0; // Reset interrupt signal
+            
             enable <= 1'b0; // Reset control signals
-            start <= 1'b0;  
+            start <= 1'b0;
+            int_enable <= 1'b0;
             
             a_x <= `ACC_WIDTH'b0;    // Reset input data registers
             a_y <= `ACC_WIDTH'b0;    
