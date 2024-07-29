@@ -404,7 +404,7 @@ module swervolf_core
       .miso_i (i_accel_miso));
 
     // Madgwick Filter module
-    reg madgwick_irq;
+    wire madgwick_irq;
     
     madgwick_top madgwick_top_inst (
         .clk(clk),
