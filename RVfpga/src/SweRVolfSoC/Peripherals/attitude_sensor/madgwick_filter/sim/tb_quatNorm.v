@@ -23,15 +23,15 @@
 
 module tb_quatNorm;
 
-//    parameter INPUT_INT_WIDTH = `Q_HAT_DOT_TRUNC_INT_WIDTH;
-//    parameter INPUT_FRACT_WIDTH = `Q_HAT_DOT_TRUNC_FRACT_WIDTH;
-//    parameter MAG_SQR_INT_WIDTH = `Q_HAT_DOT_MAG_SQR_INT_WIDTH;
-//    parameter MAG_SQR_FRACT_WIDTH = `Q_HAT_DOT_MAG_SQR_FRACT_WIDTH;
+    parameter INPUT_INT_WIDTH = `Q_HAT_DOT_TRUNC_INT_WIDTH;
+    parameter INPUT_FRACT_WIDTH = `Q_HAT_DOT_TRUNC_FRACT_WIDTH;
+    parameter MAG_SQR_INT_WIDTH = `Q_HAT_DOT_MAG_SQR_INT_WIDTH;
+    parameter MAG_SQR_FRACT_WIDTH = `Q_HAT_DOT_MAG_SQR_FRACT_WIDTH;
 
-    parameter INPUT_INT_WIDTH = `Q_INT_WIDTH;
-    parameter INPUT_FRACT_WIDTH = `Q_FRACT_WIDTH;
-    parameter MAG_SQR_INT_WIDTH = `Q_MAG_SQR_INT_WIDTH;
-    parameter MAG_SQR_FRACT_WIDTH = `Q_MAG_SQR_FRACT_WIDTH;
+//    parameter INPUT_INT_WIDTH = `Q_INT_WIDTH;
+//    parameter INPUT_FRACT_WIDTH = `Q_FRACT_WIDTH;
+//    parameter MAG_SQR_INT_WIDTH = `Q_MAG_SQR_INT_WIDTH;
+//    parameter MAG_SQR_FRACT_WIDTH = `Q_MAG_SQR_FRACT_WIDTH;
 
     reg clk;
     reg rst_n;
@@ -128,15 +128,15 @@ module tb_quatNorm;
         
         #20;
         @ (posedge clk);
-//        q_w = 'b0000000000000000;
-//        q_x = 'b1111111000010000;
-//        q_y = 'b1111111110011000;
-//        q_z = 'b0000000000000000;
+        q_w = 'b0000000000000000;
+        q_x = 'b1111111000010000;
+        q_y = 'b1111111110011000;
+        q_z = 'b0000000000000000;
 
-        q_w = 'b0100000000000000;
-        q_x = 'b1111111111101110;
-        q_y = 'b0000000000001010;
-        q_z = 'b1111111111101111;
+//        q_w = 'b0100000000000000;
+//        q_x = 'b1111111111101110;
+//        q_y = 'b0000000000001010;
+//        q_z = 'b1111111111101111;
         start <= 1'b1;
         wait (done);
         @ (posedge clk);
