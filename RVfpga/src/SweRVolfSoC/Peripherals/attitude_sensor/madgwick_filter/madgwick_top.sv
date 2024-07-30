@@ -44,26 +44,28 @@ module madgwick_top(
     
     // ---- Debug I/O signals - Start ----
     
-//    ,output wire [`ACC_WIDTH-1:0] a_x_debug,
-//    output wire [`ACC_WIDTH-1:0] a_y_debug,
-//    output wire [`ACC_WIDTH-1:0] a_z_debug,
-//    output wire [`GYRO_WIDTH-1:0] w_x_debug,
-//    output wire [`GYRO_WIDTH-1:0] w_y_debug,
-//    output wire [`GYRO_WIDTH-1:0] w_z_debug,
-//    output wire [`Q_WIDTH-1:0] q_w_debug,
-//    output wire [`Q_WIDTH-1:0] q_x_debug,
-//    output wire [`Q_WIDTH-1:0] q_y_debug,
-//    output wire [`Q_WIDTH-1:0] q_z_debug
+    ,output wire [`ACC_WIDTH-1:0] a_x_debug,
+    output wire [`ACC_WIDTH-1:0] a_y_debug,
+    output wire [`ACC_WIDTH-1:0] a_z_debug,
+    output wire [`GYRO_WIDTH-1:0] w_x_debug,
+    output wire [`GYRO_WIDTH-1:0] w_y_debug,
+    output wire [`GYRO_WIDTH-1:0] w_z_debug,
+    output wire [`Q_WIDTH-1:0] q_w_debug,
+    output wire [`Q_WIDTH-1:0] q_x_debug,
+    output wire [`Q_WIDTH-1:0] q_y_debug,
+    output wire [`Q_WIDTH-1:0] q_z_debug
     
-//    ,output wire enable_debug,
-//    output wire start_debug,
-//    output wire done_debug
+    ,output wire enable_debug,
+    output wire start_debug,
+    output wire done_debug
     
-//    ,output wire rst_n_madgwick_debug,
-//    output wire valid_in_madgwick_debug,
-//    output wire ready_in_madgwick_debug,
-//    output wire valid_out_madgwick_debug,
-//    output wire ready_out_madgwick_debug
+    ,output wire rst_n_madgwick_debug,
+    output wire valid_in_madgwick_debug,
+    output wire ready_in_madgwick_debug,
+    output wire valid_out_madgwick_debug,
+    output wire ready_out_madgwick_debug,
+
+    output reg int_enable_debug
     
     // ---- Debug I/O signals - End ----
     );
@@ -205,9 +207,7 @@ module madgwick_top(
         if (rst) begin
             ack_o <= 1'b0;  // Reset wb signals
             dat_o <= 32'h00000000;
-            
-            inta_o <= 1'b0; // Reset interrupt signal
-            
+                        
             enable <= 1'b0; // Reset control signals
             start <= 1'b0;
             int_enable <= 1'b0;
@@ -253,26 +253,28 @@ module madgwick_top(
     
     // ---- Assign debug signals - Start ----
     
-//    assign a_x_debug = a_x;
-//    assign a_y_debug = a_y;
-//    assign a_z_debug = a_z;
-//    assign w_x_debug = w_x;
-//    assign w_y_debug = w_y;
-//    assign w_z_debug = w_z;
-//    assign q_w_debug = q_w;
-//    assign q_x_debug = q_x;
-//    assign q_y_debug = q_y;
-//    assign q_z_debug = q_z;
+    assign a_x_debug = a_x;
+    assign a_y_debug = a_y;
+    assign a_z_debug = a_z;
+    assign w_x_debug = w_x;
+    assign w_y_debug = w_y;
+    assign w_z_debug = w_z;
+    assign q_w_debug = q_w;
+    assign q_x_debug = q_x;
+    assign q_y_debug = q_y;
+    assign q_z_debug = q_z;
     
-//    assign enable_debug = enable;
-//    assign start_debug = start;
-//    assign done_debug = done;
+    assign enable_debug = enable;
+    assign start_debug = start;
+    assign done_debug = done;
     
-//    assign rst_n_madgwick_debug = rst_n_madgwick;
-//    assign valid_in_madgwick_debug = valid_in_madgwick;
-//    assign ready_in_madgwick_debug = ready_in_madgwick;
-//    assign valid_out_madgwick_debug = valid_out_madgwick;
-//    assign ready_out_madgwick_debug = ready_out_madgwick;
+    assign rst_n_madgwick_debug = rst_n_madgwick;
+    assign valid_in_madgwick_debug = valid_in_madgwick;
+    assign ready_in_madgwick_debug = ready_in_madgwick;
+    assign valid_out_madgwick_debug = valid_out_madgwick;
+    assign ready_out_madgwick_debug = ready_out_madgwick;
+    
+    assign int_enable_debug = int_enable;
     
     // ---- Assign debug signals - End ----
     
