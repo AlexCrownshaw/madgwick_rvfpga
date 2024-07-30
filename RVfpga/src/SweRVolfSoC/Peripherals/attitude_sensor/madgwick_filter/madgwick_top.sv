@@ -184,12 +184,33 @@ module madgwick_top(
     
     // ---- Madgwick control path - End ----
     
-    // ---- Interrupt interface - Start ----
+    // ---- Interrupt signal driver - Start ----
     
-    reg int_enable;
-    assign inta_o = int_enable & done;
+    reg int_enable;    
+    reg done_delay;
+    reg int_pulse;
     
-    // ---- Interrupt interface - End ----
+    always @ (posedge clk) begin
+        if (rst) begin
+            done_delay <= 0;
+            int_pulse <= 0;
+        end else begin
+            done_delay <= done;
+            int_pulse <= done & ~done_delay;
+        end
+    end
+    
+    always @ (posedge clk) begin
+        if (rst) begin
+            inta_o <= 0;
+        end else if (int_enable & int_pulse) begin
+            inta_o <= 1'b1;
+        end else begin
+            inta_o <= 1'b0;
+        end
+    end
+    
+    // ---- Interrupt signal driver - End ----
     
     // ---- Wishbone interface - Start ----
     
