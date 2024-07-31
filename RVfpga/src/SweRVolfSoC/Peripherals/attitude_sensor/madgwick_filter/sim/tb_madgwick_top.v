@@ -37,29 +37,32 @@ module tb_madgwick_top;
     reg stb_i;
     reg cyc_i;
     wire ack_o;
+    wire inta_o;
 
-//    wire [`ACC_WIDTH-1:0] a_x_debug;
-//    wire [`ACC_WIDTH-1:0] a_y_debug;
-//    wire [`ACC_WIDTH-1:0] a_z_debug;
+    wire [`ACC_WIDTH-1:0] a_x_debug;
+    wire [`ACC_WIDTH-1:0] a_y_debug;
+    wire [`ACC_WIDTH-1:0] a_z_debug;
 
-//    wire [`GYRO_WIDTH-1:0] w_x_debug;
-//    wire [`GYRO_WIDTH-1:0] w_y_debug;
-//    wire [`GYRO_WIDTH-1:0] w_z_debug;
+    wire [`GYRO_WIDTH-1:0] w_x_debug;
+    wire [`GYRO_WIDTH-1:0] w_y_debug;
+    wire [`GYRO_WIDTH-1:0] w_z_debug;
 
-//    wire [`Q_WIDTH-1:0] q_w_debug;
-//    wire [`Q_WIDTH-1:0] q_x_debug;
-//    wire [`Q_WIDTH-1:0] q_y_debug;
-//    wire [`Q_WIDTH-1:0] q_z_debug;
+    wire [`Q_WIDTH-1:0] q_w_debug;
+    wire [`Q_WIDTH-1:0] q_x_debug;
+    wire [`Q_WIDTH-1:0] q_y_debug;
+    wire [`Q_WIDTH-1:0] q_z_debug;
 
-//    wire enable_debug;
-//    wire start_debug;
-//    wire done_debug;
+    wire enable_debug;
+    wire start_debug;
+    wire done_debug;
 
-//    wire rst_n_madgwick;
-//    wire valid_in_madgwick;
-//    wire ready_in_madgwick;
-//    wire valid_out_madgwick;
-//    wire ready_out_madgwick;
+    wire rst_n_madgwick;
+    wire valid_in_madgwick;
+    wire ready_in_madgwick;
+    wire valid_out_madgwick;
+    wire ready_out_madgwick;
+    
+    wire int_enable;
 
     madgwick_top dut (
         .clk(clk),
@@ -70,26 +73,28 @@ module tb_madgwick_top;
         .we_i(we_i),
         .stb_i(stb_i),
         .cyc_i(cyc_i),
-        .ack_o(ack_o)
+        .ack_o(ack_o),
+        .inta_o(inta_o)
         
-//        ,.a_x_debug(a_x_debug),
-//        .a_y_debug(a_y_debug),
-//        .a_z_debug(a_z_debug),
-//        .w_x_debug(w_x_debug),
-//        .w_y_debug(w_y_debug),
-//        .w_z_debug(w_z_debug),
-//        .q_w_debug(q_w_debug),
-//        .q_x_debug(q_x_debug),
-//        .q_y_debug(q_y_debug),
-//        .q_z_debug(q_z_debug),
-//        .enable_debug(enable_debug),
-//        .start_debug(start_debug),
-//        .done_debug(done_debug),
-//        .rst_n_madgwick_debug(rst_n_madgwick),
-//        .valid_in_madgwick_debug(valid_in_madgwick),
-//        .ready_in_madgwick_debug(ready_in_madgwick),
-//        .valid_out_madgwick_debug(valid_out_madgwick),
-//        .ready_out_madgwick_debug(ready_out_madgwick)
+        ,.a_x_debug(a_x_debug),
+        .a_y_debug(a_y_debug),
+        .a_z_debug(a_z_debug),
+        .w_x_debug(w_x_debug),
+        .w_y_debug(w_y_debug),
+        .w_z_debug(w_z_debug),
+        .q_w_debug(q_w_debug),
+        .q_x_debug(q_x_debug),
+        .q_y_debug(q_y_debug),
+        .q_z_debug(q_z_debug),
+        .enable_debug(enable_debug),
+        .start_debug(start_debug),
+        .done_debug(done_debug),
+        .rst_n_madgwick_debug(rst_n_madgwick),
+        .valid_in_madgwick_debug(valid_in_madgwick),
+        .ready_in_madgwick_debug(ready_in_madgwick),
+        .valid_out_madgwick_debug(valid_out_madgwick),
+        .ready_out_madgwick_debug(ready_out_madgwick),
+        .int_enable_debug(int_enable)
     );
     
     reg [7:0] ctrl_reg_w;
@@ -155,8 +160,8 @@ module tb_madgwick_top;
         
         @ (posedge clk);
         
-        // Set enable flag
-        ctrl_reg_w = 8'b1;
+        // Set enable and int_en flags
+        ctrl_reg_w = 8'b1001;
         adr_i = 6'h00;  // Control register
         dat_i = ctrl_reg_w;
         stb_i = 1'b1;
@@ -267,7 +272,7 @@ module tb_madgwick_top;
         @ (posedge clk);
 
         // Set start flag
-        ctrl_reg_w = 8'b11;
+        ctrl_reg_w = 8'b1011;
         adr_i = 6'h00;  // Control register
         dat_i = ctrl_reg_w;
         stb_i = 1'b1;
@@ -296,7 +301,7 @@ module tb_madgwick_top;
         end
                 
         // De-assert start flag 
-        ctrl_reg_w = 8'b1;
+        ctrl_reg_w = 8'b1001;
         adr_i = 6'h00;  // Control register
         dat_i = ctrl_reg_w;
         stb_i = 1'b1;
