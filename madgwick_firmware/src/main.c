@@ -7,39 +7,44 @@
 #endif
 #include <psp_api.h>
 
-#include "madgwick.c"
+#include "madgwick.h"
 #include "test_vectors.h"
-
-#define WRITE_ADDR(dir, value) { (*(volatile unsigned *)dir) = (value); }
-#define READ_ADDR(dir) (*(volatile unsigned *)dir)
 
 #define INTERRUPT_ENABLE 1
 
-void busy();
+void delay(unsigned int);
 
 
 int main(void)
 {
-    uartInit();
+   uartInit();
 
-    madgwickInit(INTERRUPT_ENABLE);
+   madgwickInit(INTERRUPT_ENABLE);
 
-    int size = sizeof(ax_test_vector) / sizeof(int);
-    for (int i = 0; i < size; i++)
-    {
-        do
-        {
-            ctrl_reg = READ_ADDR(CTRL_REG_ADDR);    // Read control reg
-        } while (ctrl_reg & CTRL_REG_START_MASK);
-        
-        ax = ax_test_vector[i];
-        ay = ay_test_vector[i];
-        az = az_test_vector[i];
-        wx = wx_test_vector[i];
-        wy = wy_test_vector[i];
-        wz = wz_test_vector[i];
-        madgwickWriteInputVectors();
-    }
+   for (int i = 0; i < (sizeof(ax_test_vector) / sizeof(int)); i++)
+   {
+      
+      ax = ax_test_vector[i];
+      ay = ay_test_vector[i];
+      az = az_test_vector[i];
+      wx = wx_test_vector[i];
+      wy = wy_test_vector[i];
+      wz = wz_test_vector[i];
+      madgwickWriteInputVectors();
 
-    return 0;
+      while (!done)
+      {
+         delay(1000);
+      }
+      done = 0;
+
+      printfNexys("%d,%d,%d,%d", q_w, q_x, q_y, q_z);
+   }
+
+   return 0;
+}
+
+void delay(unsigned int count)
+{
+   for(int i = 0; i < count; i++);
 }

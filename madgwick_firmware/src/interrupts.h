@@ -2,6 +2,9 @@
 #include "bsp_external_interrupts.h"
 #include "psp_ext_interrupts_eh1.h"
 
+// Interrupt config register addresses
+#define INT_SEL_REG_ADDR 0x80001018
+
 extern D_PSP_DATA_SECTION D_PSP_ALIGNED(1024) pspInterruptHandler_t G_Ext_Interrupt_Handlers[8];
 
 

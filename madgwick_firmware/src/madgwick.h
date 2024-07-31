@@ -1,4 +1,4 @@
-#include "interrupts.c" 
+#include "interrupts.h" 
 
 // Register read/write macros
 #define WRITE_ADDR(dir, value) { (*(volatile unsigned *)dir) = (value); }
@@ -20,9 +20,6 @@
 #define Q_Y_REG_ADDR 0x80003124
 #define Q_Z_REG_ADDR 0x80003128
 
-// Interrupt config register addresses
-#define INT_SEL_REG_ADDR 0x80001018
-
 // Control register masks
 #define CTRL_REG_ENABLE_MASK 0x1
 #define CTRL_REG_START_MASK 0x2
@@ -33,13 +30,18 @@
 volatile unsigned int ctrl_reg;
 volatile unsigned int ax, ay, az, wx, wy, wz;
 volatile unsigned long q_w, q_x, q_y, q_z;
+volatile unsigned int done;
+
+void madgwickInit(int);
+void madgwickWriteInputVectors();
+void madgwickReadOutputQuaternion();
+void MADGWICK_ISR();
 
 
 void madgwickInit(int int_en)
 {
     // Reset madgwick accelerator
-    ctrl_reg = READ_ADDR(CTRL_REG_ADDR);    // Read control reg
-    WRITE_ADDR(CTRL_REG_ADDR, (ctrl_reg & ~CTRL_REG_ENABLE_MASK));   // De-assert enable flag
+    WRITE_ADDR(CTRL_REG_ADDR, 0x0);
 
     if (int_en)
     {
@@ -47,13 +49,13 @@ void madgwickInit(int int_en)
         DefaultInitialization();    // Initialise external interrupt with default config
         pspExtInterruptsSetThreshold(5);   // Set interrupt threshold
         ExternalIntLine_Initialization(4, 6, MADGWICK_ISR); // Initialize line IRQ4 with priority 6 and set ISR
-        WRITE_ADDR(INT_SEL_REG_ADDR, 0x4);  // Set 3rd bit to connect IRQ4 to madgwick interrupt
+        M_PSP_WRITE_REGISTER_32(INT_SEL_REG_ADDR, 0x4);  // Set 3rd bit to connect IRQ4 to madgwick interrupt
         pspInterruptsEnable();  // Enable all interrupts in mstatus CSR
         M_PSP_SET_CSR(D_PSP_MIE_NUM, D_PSP_MIE_MEIE_MASK);  // Enable external interrupts in mie CSR
 
         // Enable madgwick accelerator and enable interrupts
         ctrl_reg = READ_ADDR(CTRL_REG_ADDR);    // Read control reg
-        WRITE_ADDR(CTRL_REG_ADDR, (ctrl_reg | (CTRL_REG_ENABLE_MASK | CTRL_REG_INT_EN_MASK))); // Assert enable and int_en flags
+        WRITE_ADDR(CTRL_REG_ADDR, (ctrl_reg | (CTRL_REG_ENABLE_MASK | CTRL_REG_INT_EN_MASK))); // Assert enable & int_en flag
     }
     else
     {
@@ -92,5 +94,6 @@ void madgwickReadOutputQuaternion()
 void MADGWICK_ISR()
 {
     madgwickReadOutputQuaternion();
-    printfNexys("%d,%d,%d,%d", q_w, q_x, q_y, q_z);
+    bspClearExtInterrupt(4);
+    done = 1;
 }
