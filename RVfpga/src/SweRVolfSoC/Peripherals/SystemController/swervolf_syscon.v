@@ -29,9 +29,11 @@ module swervolf_syscon
    input wire 	     i_rst,
    input wire        gpio_irq,
    input wire        ptc_irq,
+   input wire        madgwick_irq,
    output reg 	     o_timer_irq,
    output wire 	     o_sw_irq3,
    output wire 	     o_sw_irq4,
+   output wire       o_sw_irq5,
    input wire 	     i_ram_init_done,
    input wire 	     i_ram_init_error,
    output reg [31:0] o_nmi_vec,
@@ -59,12 +61,17 @@ module swervolf_syscon
    reg 		 sw_irq4_edge;
    reg 		 sw_irq4_pol;
    reg 		 sw_irq4_timer;
+  reg 		 sw_irq5;
+   reg 		 sw_irq5_edge;
+   reg 		 sw_irq5_pol;
+   reg 		 sw_irq5_timer;
 
    reg 		 irq_timer_en;
    reg [31:0] 	 irq_timer_cnt;
 
    reg     irq_gpio_enable;
    reg     irq_ptc_enable;
+   reg     irq_madgwick_enable;
 
    reg 		 nmi_int;
    reg 		 nmi_int_r;
@@ -130,6 +137,11 @@ module swervolf_syscon
       if (irq_gpio_enable & gpio_irq) begin
            sw_irq4 <= 1'b1;
       end
+      
+      // Madwick Interrupt through IRQ4. Enable by setting bit 3 of word 0x80001018
+      if (irq_madgwick_enable & madgwick_irq) begin
+           sw_irq4 <= 1'b1;
+      end
 
       // Timer (PTC) Interrupt through IRQ3. Enable by setting bit 1 of word 0x80001018
       if (irq_ptc_enable & ptc_irq) begin
@@ -137,7 +149,7 @@ module swervolf_syscon
       end
 
       // SweRVolf simple timer and software interrupts. Enable by resetting bits 0 and 1 of word 0x80001018
-      if (!irq_gpio_enable & !irq_ptc_enable) begin
+      if (!irq_gpio_enable & !irq_ptc_enable & !irq_madgwick_enable) begin
 
           if (sw_irq3_edge)
             sw_irq3 <= 1'b0;
@@ -193,6 +205,7 @@ module swervolf_syscon
        if (i_wb_sel[0])
            irq_gpio_enable <= i_wb_dat[0];
            irq_ptc_enable <=  i_wb_dat[1];
+           irq_madgwick_enable <= i_wb_dat[2];
     end
 	  10 : begin //0x28-0x2B
 	     if (i_wb_sel[0]) mtimecmp[7:0]   <= i_wb_dat[7:0];
@@ -246,7 +259,7 @@ module swervolf_syscon
 	//0xC-0xF
 	3 : o_wb_rdt <= o_nmi_vec;
     //0x18-0x1B
-    6 : o_wb_rdt <= {30'd0, irq_ptc_enable, irq_gpio_enable};
+    6 : o_wb_rdt <= {29'd0, irq_madgwick_enable, irq_ptc_enable, irq_gpio_enable};
 	//0x20-0x23
 	8 : o_wb_rdt <= mtime[31:0];
 	//0x24-0x27

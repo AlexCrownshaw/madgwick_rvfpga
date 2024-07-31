@@ -219,6 +219,7 @@ module swervolf_core
       .i_rst            (wb_rst),
       .gpio_irq         (gpio_irq),
       .ptc_irq          (ptc_irq),
+      .madgwick_irq     (madgwick_irq),
       .o_timer_irq      (timer_irq),
       .o_sw_irq3        (sw_irq3),
       .o_sw_irq4        (sw_irq4),
@@ -403,6 +404,8 @@ module swervolf_core
       .miso_i (i_accel_miso));
 
     // Madgwick Filter module
+    wire madgwick_irq;
+    
     madgwick_top madgwick_top_inst (
         .clk(clk),
         .rst(wb_rst),
@@ -412,7 +415,8 @@ module swervolf_core
         .we_i(wb_m2s_madgwick_we),
         .stb_i(wb_m2s_madgwick_stb),
         .cyc_i(wb_m2s_madgwick_cyc),
-        .ack_o(wb_s2m_madgwick_ack)
+        .ack_o(wb_s2m_madgwick_ack),
+        .inta_o(madgwick_irq)
     );
 
    swerv_wrapper_dmi swerv_eh1

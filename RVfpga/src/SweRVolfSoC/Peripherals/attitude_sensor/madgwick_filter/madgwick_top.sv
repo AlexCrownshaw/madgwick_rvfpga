@@ -21,6 +21,7 @@
 
 
 module madgwick_top(
+
     // ---- Wishbone interface signals - Start ----
     
     input wire clk,           // Clock signal
@@ -31,32 +32,40 @@ module madgwick_top(
     input wire we_i,          // Write enable input
     input wire stb_i,         // Strobe input
     input wire cyc_i,         // Cycle input
-    output reg ack_o          // Acknowledge output
+    output reg ack_o,         // Acknowledge output
     
     // ---- Wishbone interface signals - End ----
     
+    // ---- Interupts interface signals - Start ----
+    
+    output reg inta_o         // Interrupt signal
+    
+    // ---- Interupts interface signals - End ----
+    
     // ---- Debug I/O signals - Start ----
     
-//    ,output wire [`ACC_WIDTH-1:0] a_x_debug,
-//    output wire [`ACC_WIDTH-1:0] a_y_debug,
-//    output wire [`ACC_WIDTH-1:0] a_z_debug,
-//    output wire [`GYRO_WIDTH-1:0] w_x_debug,
-//    output wire [`GYRO_WIDTH-1:0] w_y_debug,
-//    output wire [`GYRO_WIDTH-1:0] w_z_debug,
-//    output wire [`Q_WIDTH-1:0] q_w_debug,
-//    output wire [`Q_WIDTH-1:0] q_x_debug,
-//    output wire [`Q_WIDTH-1:0] q_y_debug,
-//    output wire [`Q_WIDTH-1:0] q_z_debug
+    ,output wire [`ACC_WIDTH-1:0] a_x_debug,
+    output wire [`ACC_WIDTH-1:0] a_y_debug,
+    output wire [`ACC_WIDTH-1:0] a_z_debug,
+    output wire [`GYRO_WIDTH-1:0] w_x_debug,
+    output wire [`GYRO_WIDTH-1:0] w_y_debug,
+    output wire [`GYRO_WIDTH-1:0] w_z_debug,
+    output wire [`Q_WIDTH-1:0] q_w_debug,
+    output wire [`Q_WIDTH-1:0] q_x_debug,
+    output wire [`Q_WIDTH-1:0] q_y_debug,
+    output wire [`Q_WIDTH-1:0] q_z_debug
     
-//    ,output wire enable_debug,
-//    output wire start_debug,
-//    output wire done_debug
+    ,output wire enable_debug,
+    output wire start_debug,
+    output wire done_debug
     
-//    ,output wire rst_n_madgwick_debug,
-//    output wire valid_in_madgwick_debug,
-//    output wire ready_in_madgwick_debug,
-//    output wire valid_out_madgwick_debug,
-//    output wire ready_out_madgwick_debug
+    ,output wire rst_n_madgwick_debug,
+    output wire valid_in_madgwick_debug,
+    output wire ready_in_madgwick_debug,
+    output wire valid_out_madgwick_debug,
+    output wire ready_out_madgwick_debug,
+
+    output reg int_enable_debug
     
     // ---- Debug I/O signals - End ----
     );
@@ -175,13 +184,42 @@ module madgwick_top(
     
     // ---- Madgwick control path - End ----
     
+    // ---- Interrupt signal driver - Start ----
+    
+    reg int_enable;    
+    reg done_delay;
+    reg int_pulse;
+    
+    always @ (posedge clk) begin
+        if (rst) begin
+            done_delay <= 0;
+            int_pulse <= 0;
+        end else begin
+            done_delay <= done;
+            int_pulse <= done & ~done_delay;
+        end
+    end
+    
+    always @ (posedge clk) begin
+        if (rst) begin
+            inta_o <= 0;
+        end else if (int_enable & int_pulse) begin
+            inta_o <= 1'b1;
+        end else begin
+            inta_o <= 1'b0;
+        end
+    end
+    
+    // ---- Interrupt signal driver - End ----
+    
     // ---- Wishbone interface - Start ----
     
     reg [7:0] ctrl_reg;     // Control register assignment
     assign ctrl_reg[0] = enable;
     assign ctrl_reg[1] = start;
     assign ctrl_reg[2] = done;
-    assign ctrl_reg[7:3] = 5'b0;
+    assign ctrl_reg[3] = int_enable;
+    assign ctrl_reg[7:4] = 4'b0;
     
     wire valid_wb;
     assign valid_wb = cyc_i && stb_i;
@@ -190,9 +228,10 @@ module madgwick_top(
         if (rst) begin
             ack_o <= 1'b0;  // Reset wb signals
             dat_o <= 32'h00000000;
-            
+                        
             enable <= 1'b0; // Reset control signals
-            start <= 1'b0;  
+            start <= 1'b0;
+            int_enable <= 1'b0;
             
             a_x <= `ACC_WIDTH'b0;    // Reset input data registers
             a_y <= `ACC_WIDTH'b0;    
@@ -209,6 +248,7 @@ module madgwick_top(
                         'h00: begin   // Decode control register
                             enable <= dat_i[0];
                             start <= dat_i[1];
+                            int_enable <= dat_i[3];
                         end   
                         6'h04: a_x <= dat_i[`ACC_WIDTH-1:0];   // Accel data input
                         6'h08: a_y <= dat_i[`ACC_WIDTH-1:0];
@@ -234,26 +274,28 @@ module madgwick_top(
     
     // ---- Assign debug signals - Start ----
     
-//    assign a_x_debug = a_x;
-//    assign a_y_debug = a_y;
-//    assign a_z_debug = a_z;
-//    assign w_x_debug = w_x;
-//    assign w_y_debug = w_y;
-//    assign w_z_debug = w_z;
-//    assign q_w_debug = q_w;
-//    assign q_x_debug = q_x;
-//    assign q_y_debug = q_y;
-//    assign q_z_debug = q_z;
+    assign a_x_debug = a_x;
+    assign a_y_debug = a_y;
+    assign a_z_debug = a_z;
+    assign w_x_debug = w_x;
+    assign w_y_debug = w_y;
+    assign w_z_debug = w_z;
+    assign q_w_debug = q_w;
+    assign q_x_debug = q_x;
+    assign q_y_debug = q_y;
+    assign q_z_debug = q_z;
     
-//    assign enable_debug = enable;
-//    assign start_debug = start;
-//    assign done_debug = done;
+    assign enable_debug = enable;
+    assign start_debug = start;
+    assign done_debug = done;
     
-//    assign rst_n_madgwick_debug = rst_n_madgwick;
-//    assign valid_in_madgwick_debug = valid_in_madgwick;
-//    assign ready_in_madgwick_debug = ready_in_madgwick;
-//    assign valid_out_madgwick_debug = valid_out_madgwick;
-//    assign ready_out_madgwick_debug = ready_out_madgwick;
+    assign rst_n_madgwick_debug = rst_n_madgwick;
+    assign valid_in_madgwick_debug = valid_in_madgwick;
+    assign ready_in_madgwick_debug = ready_in_madgwick;
+    assign valid_out_madgwick_debug = valid_out_madgwick;
+    assign ready_out_madgwick_debug = ready_out_madgwick;
+    
+    assign int_enable_debug = int_enable;
     
     // ---- Assign debug signals - End ----
     
