@@ -62,30 +62,14 @@
 
 // synopsys translate_off
 //`include "..\..\testbench\verilog\timescale.v"
-//`include "timescale.v"
+`include "timescale.v"
 // synopsys translate_on
 
 
 module i2c_master_wb_top(
-    input  wire        wb_clk_i,     // master clock input
-	input  wire        wb_rst_i,     // synchronous active high reset
-	input  wire        arst_i,       // asynchronous reset
-	input  wire  [2:0] wb_adr_i,     // lower address bits
-	input  wire  [7:0] wb_dat_i,     // databus input
-	output reg   [7:0] wb_dat_o,     // databus output
-	input  wire        wb_we_i,      // write enable input
-	input  wire        wb_stb_i,     // stobe/core select signal
-	input  wire        wb_cyc_i,     // valid bus cycle input
-	output reg         wb_ack_o,     // bus cycle acknowledge output
-	output reg         wb_inta_o,    // interrupt request signal output
-	
-	inout wire scl, 
-	inout wire sda
-    
-//	wb_clk_i, wb_rst_i, arst_i, wb_adr_i, wb_dat_i, wb_dat_o,
-//	wb_we_i, wb_stb_i, wb_cyc_i, wb_ack_o, wb_inta_o,
-//	scl, sda
-	);
+	wb_clk_i, wb_rst_i, arst_i, wb_adr_i, wb_dat_i, wb_dat_o,
+	wb_we_i, wb_stb_i, wb_cyc_i, wb_ack_o, wb_inta_o,
+	scl, sda);
 	////scl_pad_i, scl_pad_o, scl_padoen_o, sda_pad_i, sda_pad_o, sda_padoen_o );
 
 	// parameters
@@ -96,23 +80,23 @@ module i2c_master_wb_top(
 	//
 
 	// wishbone signals
-//	input        wb_clk_i;     // master clock input
-//	input        wb_rst_i;     // synchronous active high reset
-//	input        arst_i;       // asynchronous reset
-//	input  [2:0] wb_adr_i;     // lower address bits
-//	input  [7:0] wb_dat_i;     // databus input
-//	output [7:0] wb_dat_o;     // databus output
-//	input        wb_we_i;      // write enable input
-//	input        wb_stb_i;     // stobe/core select signal
-//	input        wb_cyc_i;     // valid bus cycle input
-//	output       wb_ack_o;     // bus cycle acknowledge output
-//	output       wb_inta_o;    // interrupt request signal output
+	input        wb_clk_i;     // master clock input
+	input        wb_rst_i;     // synchronous active high reset
+	input        arst_i;       // asynchronous reset
+	input  [2:0] wb_adr_i;     // lower address bits
+	input  [7:0] wb_dat_i;     // databus input
+	output [7:0] wb_dat_o;     // databus output
+	input        wb_we_i;      // write enable input
+	input        wb_stb_i;     // stobe/core select signal
+	input        wb_cyc_i;     // valid bus cycle input
+	output       wb_ack_o;     // bus cycle acknowledge output
+	output       wb_inta_o;    // interrupt request signal output
 
-//	reg [7:0] wb_dat_o;
-//	reg wb_ack_o;
-//	reg wb_inta_o;
+	reg [7:0] wb_dat_o;
+	reg wb_ack_o;
+	reg wb_inta_o;
 
-//	inout scl, sda; 
+	inout scl, sda; 
 
 	//
 	// variable declarations
