@@ -38,7 +38,7 @@ int main(void)
       }
       done = 0;
 
-      printfNexys("%d,%d,%d,%d", q_w, q_x, q_y, q_z);
+      printfNexys("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", ax, ay, az, wx, wy, wz, q_w, q_x, q_y, q_z);
    }
 
    return 0;
