@@ -83,7 +83,9 @@ module swervolf_core
     output wire        o_accel_sclk,
     output wire        o_accel_cs_n,
     output wire        o_accel_mosi,
-    input wire         i_accel_miso);
+    input wire         i_accel_miso,
+    inout wire         i2c_scl,
+    inout wire         i2c_sda);
 
    localparam BOOTROM_SIZE = 32'h1000;
 
@@ -417,6 +419,22 @@ module swervolf_core
         .cyc_i(wb_m2s_madgwick_cyc),
         .ack_o(wb_s2m_madgwick_ack),
         .inta_o(madgwick_irq)
+    );
+    
+    i2c_master_wb_top i2c_inst (
+        .wb_clk_i(clk),
+        .wb_rst_i(wb_rst),
+        .arst_i(wb_rst),
+        .wb_adr_i(wb_m2s_i2c_adr[2:0]),
+        .wb_dat_i(wb_m2s_i2c_dat),
+        .wb_dat_o(wb_s2m_i2c_dat),
+        .wb_we_i(wb_m2s_i2c_we),
+        .wb_stb_i(wb_m2s_i2c_stb),
+        .wb_cyc_i(wb_m2s_i2c_cyc),
+        .wb_ack_o(wb_s2m_i2c_ack),
+        
+        .scl(i2c_scl),
+        .sda(i2c_sda)
     );
 
    swerv_wrapper_dmi swerv_eh1

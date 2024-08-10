@@ -52,7 +52,9 @@ module rvfpganexys
     output wire        o_accel_cs_n,
     output wire        o_accel_mosi,
     input wire         i_accel_miso,
-    output wire        accel_sclk);
+    output wire        accel_sclk,
+    inout wire         i2c_scl,
+    inout wire         i2c_sda);
 
    wire [15:0] 	       gpio_out;
 
@@ -260,7 +262,10 @@ module rvfpganexys
       .o_accel_sclk   (accel_sclk),
       .o_accel_cs_n   (o_accel_cs_n),
       .o_accel_mosi   (o_accel_mosi),
-      .i_accel_miso   (i_accel_miso));
+      .i_accel_miso   (i_accel_miso),
+      .i2c_scl        (i2c_scl),
+      .i2c_sda        (i2c_sda)
+      );
 
    always @(posedge clk_core) begin
       o_led[15:0] <= gpio_out[15:0];

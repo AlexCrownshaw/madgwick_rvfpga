@@ -80,3 +80,7 @@ set_property -dict { PACKAGE_PIN E15   IOSTANDARD LVCMOS33 } [get_ports { i_acce
 set_property -dict { PACKAGE_PIN F14   IOSTANDARD LVCMOS33 } [get_ports { o_accel_mosi }]; #IO_L5N_T0_AD9N_15 Sch=acl_mosi
 set_property -dict { PACKAGE_PIN F15   IOSTANDARD LVCMOS33 } [get_ports { accel_sclk }]; #IO_L14P_T2_SRCC_15 Sch=acl_sclk
 set_property -dict { PACKAGE_PIN D15   IOSTANDARD LVCMOS33 } [get_ports { o_accel_cs_n }]; 
+
+## I2C
+set_property -dict { PACKAGE_PIN G1   IOSTANDARD LVCMOS33 } [get_ports { i2c_scl }]; 
+set_property -dict { PACKAGE_PIN G3   IOSTANDARD LVCMOS33 } [get_ports { i2c_sda }]; 
