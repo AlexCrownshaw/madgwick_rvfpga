@@ -83,7 +83,7 @@ module i2c_master_wb_top(
 	input        wb_clk_i;     // master clock input
 	input        wb_rst_i;     // synchronous active high reset
 	input        arst_i;       // asynchronous reset
-	input  [2:0] wb_adr_i;     // lower address bits
+	input  [5:0] wb_adr_i;     // lower address bits
 	input  [7:0] wb_dat_i;     // databus input
 	output [7:0] wb_dat_o;     // databus output
 	input        wb_we_i;      // write enable input
@@ -173,14 +173,14 @@ module i2c_master_wb_top(
 	always @(posedge wb_clk_i)
 	begin
 	  case (wb_adr_i) // synopsis parallel_case
-	    3'b000: wb_dat_o <= #1 prer[ 7:0];
-	    3'b001: wb_dat_o <= #1 prer[15:8];
-	    3'b010: wb_dat_o <= #1 ctr;
-	    3'b011: wb_dat_o <= #1 rxr; // write is transmit register (txr)
-	    3'b100: wb_dat_o <= #1 sr;  // write is command register (cr)
-	    3'b101: wb_dat_o <= #1 txr;
-	    3'b110: wb_dat_o <= #1 cr;
-	    3'b111: wb_dat_o <= #1 0;   // reserved
+	    5'h00: wb_dat_o <= #1 prer[ 7:0];
+	    5'h04: wb_dat_o <= #1 prer[15:8];
+	    5'h08: wb_dat_o <= #1 ctr;
+	    5'h0c: wb_dat_o <= #1 rxr; // write is transmit register (txr)
+	    5'h10: wb_dat_o <= #1 sr;  // write is command register (cr)
+	    5'h14: wb_dat_o <= #1 txr;
+	    5'h18: wb_dat_o <= #1 cr;
+	    5'h1c: wb_dat_o <= #1 0;   // reserved
 	  endcase
 	end
 	

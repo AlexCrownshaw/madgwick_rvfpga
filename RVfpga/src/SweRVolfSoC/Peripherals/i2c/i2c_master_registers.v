@@ -97,10 +97,10 @@ always @(posedge wb_clk_i or negedge rst_i)
   else                                                    
     if (wb_wacc)                                          
       case (wb_adr_i) // synopsis parallel_case           
-         3'b000 : prer [ 7:0] <= #1 wb_dat_i;             
-         3'b001 : prer [15:8] <= #1 wb_dat_i;             
-         3'b010 : ctr         <= #1 wb_dat_i;             
-         3'b011 : txr         <= #1 wb_dat_i;             
+         5'h00 : prer [ 7:0] <= #1 wb_dat_i;             
+         5'h04 : prer [15:8] <= #1 wb_dat_i;             
+         5'h08 : ctr         <= #1 wb_dat_i;             
+         5'h0c : txr         <= #1 wb_dat_i;             
          default: ;                                       
       endcase                                             
                                                           
@@ -113,7 +113,7 @@ always @(posedge wb_clk_i or negedge rst_i )
   else if (wb_wacc)                                       
     begin                                                 
         //if (core_en & (wb_adr_i == 3'b100) ) 
-        if (ctr[7] & (wb_adr_i == 3'b100) )              
+        if (ctr[7] & (wb_adr_i == 5'h10) )              
           cr <= #1 wb_dat_i;                              
     end                                                   
   else                                                    
