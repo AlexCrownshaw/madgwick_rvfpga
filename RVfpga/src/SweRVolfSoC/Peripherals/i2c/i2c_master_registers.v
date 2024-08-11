@@ -62,7 +62,7 @@ input wb_clk_i;
 input rst_i;        
 input wb_rst_i;
 input [7:0] wb_dat_i;
-input [2:0] wb_adr_i;
+input [5:0] wb_adr_i;
 input wb_wacc;
 input i2c_al;    
 input i2c_busy;
