@@ -131,7 +131,6 @@ module wb_intercon
     input         wb_i2c_ack_i,
     input         wb_i2c_err_i,
     input         wb_i2c_rty_i
-    
     );
 
 
