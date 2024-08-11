@@ -424,7 +424,7 @@ module swervolf_core
     i2c_master_wb_top i2c_inst (
         .wb_clk_i(clk),
         .wb_rst_i(wb_rst),
-        .arst_i(wb_rst),
+        .arst_i(~wb_rst),
         .wb_adr_i(wb_m2s_i2c_adr[5:0]),
         .wb_dat_i(wb_m2s_i2c_dat[7:0]),
         .wb_dat_o(wb_s2m_i2c_dat[7:0]),
