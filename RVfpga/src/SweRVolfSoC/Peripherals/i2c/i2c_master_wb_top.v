@@ -146,7 +146,7 @@ module i2c_master_wb_top(
 	//
 
 	// generate internal reset
-	wire rst_i = arst_i ^ ARST_LVL;
+	wire rst_i = (arst_i ^ ARST_LVL) & core_en; // AC: Modified to reset when core_en is low
 
 	// generate wishbone signals
 	wire wb_wacc = wb_cyc_i & wb_stb_i & wb_we_i;
