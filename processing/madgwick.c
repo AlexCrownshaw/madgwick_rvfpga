@@ -2,7 +2,7 @@
 #include <math.h>
 
 // System constants
-#define deltat 0.003f // sampling period in seconds (shown as 1 ms)
+#define deltat 0.013725f // sampling period in seconds
 #define gyroMeasError 3.14159265358979f * (5.0f / 180.0f) // gyroscope measurement error in rad/s (shown as 5 deg/s)
 #define beta sqrt(3.0f / 4.0f) * gyroMeasError // compute beta
 
@@ -87,23 +87,8 @@ int main()
 {
     scanf("%f %f %f %f %f %f %f %f %f %f", &a_x, &a_y, &a_z, &w_x, &w_y, &w_z, &q_w, &q_x, &q_y, &q_z);
     filterUpdate();
-    printf("%.5f\t%.5f\t%.5f\t%.5f", q_w, q_x, q_y, q_z);
+    printf("%.12f\t%.12f\t%.12f\t%.12f", q_w, q_x, q_y, q_z);
     printf("\n");
 
     return 0;
 }
-
-// int main()
-// {
-//     a_x = -1.1250;
-//     a_y = 5.1562;
-//     a_z = 3.0625;
-
-//     w_x = -0.8750; 
-//     w_y = 0.3594;  
-//     w_z = -0.6719;
-
-//     filterUpdate();
-
-//     return 0;
-// }

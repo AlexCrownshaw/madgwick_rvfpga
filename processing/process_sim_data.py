@@ -5,13 +5,13 @@ from quaternion import Quaternion
 
 
 def main():
-    sim_data = pd.read_csv("Data/MATLAB_sim_data/madgwick_sim_data.csv")
+    sim_data = pd.read_csv("Data/HDL_data/HDL_data_3000_samples.csv")
     sim_euler_angles = pd.DataFrame(columns=["psi", "theta", "phi"])
 
     for row in sim_data.itertuples(index=False):
         sim_euler_angles.loc[len(sim_euler_angles)] = Quaternion.to_euler(q=[row.q_w, row.q_x, row.q_y, row.q_z])
 
-    ref_data = pd.read_csv("Data/filtered_data/filtered_output_23-06-24_16-47-37.csv")
+    ref_data = pd.read_csv("Data/MATLAB_sim_data/madgwick_sim_data_wider_mag_sqr.csv")
 
     # Plot comparison of the quaternions
     fig, axs = plt.subplots(4, 1, figsize=(12, 18))

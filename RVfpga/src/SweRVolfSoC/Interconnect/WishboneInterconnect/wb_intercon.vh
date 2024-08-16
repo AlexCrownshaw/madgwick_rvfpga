@@ -115,6 +115,20 @@ wire        wb_s2m_madgwick_ack;
 wire        wb_s2m_madgwick_err;
 wire        wb_s2m_madgwick_rty;
 
+// I2C
+wire [31:0] wb_m2s_i2c_adr;
+wire [31:0] wb_m2s_i2c_dat;
+wire  [3:0] wb_m2s_i2c_sel;
+wire        wb_m2s_i2c_we;
+wire        wb_m2s_i2c_cyc;
+wire        wb_m2s_i2c_stb;
+wire  [2:0] wb_m2s_i2c_cti;
+wire  [1:0] wb_m2s_i2c_bte;
+wire [31:0] wb_s2m_i2c_dat;
+wire        wb_s2m_i2c_ack;
+wire        wb_s2m_i2c_err;
+wire        wb_s2m_i2c_rty;
+
 wb_intercon wb_intercon0
    (.wb_clk_i           (wb_clk),
     .wb_rst_i           (wb_rst),
@@ -229,5 +243,19 @@ wb_intercon wb_intercon0
     .wb_madgwick_dat_i (wb_s2m_madgwick_dat),
     .wb_madgwick_ack_i (wb_s2m_madgwick_ack),
     .wb_madgwick_err_i (wb_s2m_madgwick_err),
-    .wb_madgwick_rty_i (wb_s2m_madgwick_rty)
+    .wb_madgwick_rty_i (wb_s2m_madgwick_rty),
+    
+// I2C
+    .wb_i2c_adr_o (wb_m2s_i2c_adr),
+    .wb_i2c_dat_o (wb_m2s_i2c_dat),
+    .wb_i2c_sel_o (wb_m2s_i2c_sel),
+    .wb_i2c_we_o  (wb_m2s_i2c_we),
+    .wb_i2c_cyc_o (wb_m2s_i2c_cyc),
+    .wb_i2c_stb_o (wb_m2s_i2c_stb),
+    .wb_i2c_cti_o (wb_m2s_i2c_cti),
+    .wb_i2c_bte_o (wb_m2s_i2c_bte),
+    .wb_i2c_dat_i (wb_s2m_i2c_dat),
+    .wb_i2c_ack_i (wb_s2m_i2c_ack),
+    .wb_i2c_err_i (wb_s2m_i2c_err),
+    .wb_i2c_rty_i (wb_s2m_i2c_rty)
     );
