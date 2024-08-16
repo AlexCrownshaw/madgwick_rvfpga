@@ -22,6 +22,8 @@
 -CFLAGS -I../RVfpga/src/SweRVolfSoC/Peripherals/attitude_sensor/madgwick_filter
 +incdir+../RVfpga/src/SweRVolfSoC/Peripherals/attitude_sensor/madgwick_filter/fastInvSqrt/src
 -CFLAGS -I../RVfpga/src/SweRVolfSoC/Peripherals/attitude_sensor/madgwick_filter/fastInvSqrt/src
++incdir+../RVfpga/src/SweRVolfSoC/Peripherals/i2c
+-CFLAGS -I../RVfpga/src/SweRVolfSoC/Peripherals/i2c
 +incdir+../RVfpga/src/SweRVolfSoC/Interconnect/WishboneInterconnect/wb_common_1.0.3
 -CFLAGS -I../RVfpga/src/SweRVolfSoC/Interconnect/WishboneInterconnect/wb_common_1.0.3
 +incdir+../RVfpga/src/SweRVolfSoC/Interconnect/WishboneInterconnect
@@ -222,6 +224,11 @@
 ../RVfpga/src/SweRVolfSoC/Peripherals/attitude_sensor/madgwick_filter/fastInvSqrt/src/singleToFix.sv
 ../RVfpga/src/SweRVolfSoC/Peripherals/attitude_sensor/madgwick_filter/fastInvSqrt/src/newtonRaphson.sv
 
+../RVfpga/src/SweRVolfSoC/Peripherals/i2c/i2c_master_bit_ctrl.v
+../RVfpga/src/SweRVolfSoC/Peripherals/i2c/i2c_master_byte_ctrl.v
+../RVfpga/src/SweRVolfSoC/Peripherals/i2c/i2c_master_defines.v
+../RVfpga/src/SweRVolfSoC/Peripherals/i2c/i2c_master_registers.v
+../RVfpga/src/SweRVolfSoC/Peripherals/i2c/i2c_master_wb_top.v
 
 --top-module rvfpgasim
 --exe
