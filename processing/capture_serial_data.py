@@ -90,8 +90,7 @@ try:
                     )
 
                     # Run Madgwick algorithm
-                    process = subprocess.Popen(["./processing/madgwick"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                               stderr=subprocess.PIPE, text=True)
+                    process = subprocess.Popen(["./processing/madgwick"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                     stdout, _ = process.communicate(input=madgwick_input)
                     q_ref = [float(q_part) for q_part in stdout.strip().split("\t")]
 
@@ -112,10 +111,8 @@ try:
 
                     # Print the processed data to the terminal for verification
                     print(f"Timestamp: {current_timestamp.strftime('%Y-%m-%d %H:%M:%S.%f')}")
-                    print(
-                        f"Processed data -> ax: {ax:.6f}, ay: {ay:.6f}, az: {az:.6f}, wx: {wx:.6f}, wy: {wy:.6f}, wz: {wz:.6f}")
-                    print(
-                        f"Euler angles -> psi: {euler_angles_ref[0]:.6f}, theta: {euler_angles_ref[1]:.6f}, phi: {euler_angles_ref[2]:.6f}")
+                    print(f"Processed data -> ax: {ax:.6f}, ay: {ay:.6f}, az: {az:.6f}, wx: {wx:.6f}, wy: {wy:.6f}, wz: {wz:.6f}")
+                    print(f"Euler angles -> psi: {euler_angles_ref[0]:.6f}, theta: {euler_angles_ref[1]:.6f}, phi: {euler_angles_ref[2]:.6f}")
                     print("-" * 50)
 
                     sample_number += 1
@@ -124,7 +121,7 @@ except KeyboardInterrupt:
     print("Data capture stopped by user.")
     if len(timestamps) > 1:
         # Calculate the time deltas between consecutive timestamps
-        time_deltas = [(timestamps[i] - timestamps[i - 1]).total_seconds() for i in range(1, len(timestamps))]
+        time_deltas = [(timestamps[i] - timestamps[i-1]).total_seconds() for i in range(1, len(timestamps))]
 
         # Calculate the average time delta
         average_time_delta = sum(time_deltas) / len(time_deltas)
