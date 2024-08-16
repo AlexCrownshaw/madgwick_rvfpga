@@ -114,13 +114,51 @@ module madgwick_top(
     
     // ---- Madgwick instatiation - End ----
     
+    // ---- Process sensor data - Start ----
+    
+    reg signed [15:0] a_x_sens, a_y_sens, a_z_sens;
+    reg signed [15:0] w_x_sens, w_y_sens, w_z_sens;
+    
+    reg [`ACC_SENS_COEFF_WIDTH+15:0] a_x_temp; 
+    reg [`ACC_SENS_COEFF_WIDTH+15:0] a_y_temp; 
+    reg [`ACC_SENS_COEFF_WIDTH+15:0] a_z_temp; 
+    
+    reg [`GYRO_SENS_COEFF_WIDTH+15:0] w_x_temp; 
+    reg [`GYRO_SENS_COEFF_WIDTH+15:0] w_y_temp; 
+    reg [`GYRO_SENS_COEFF_WIDTH+15:0] w_z_temp; 
+
+    wire signed [`ACC_SENS_COEFF_WIDTH-1:0] acc_sens_coeff;
+    wire signed [`GYRO_SENS_COEFF_WIDTH-1:0] gyro_sens_coeff;
+    
+    if (`PROC_SENS_DATA) begin
+        assign acc_sens_coeff = `ACC_SENS_COEFF_WIDTH'b`ACC_SENS_COEFF;
+        assign gyro_sens_coeff = `GYRO_SENS_COEFF_WIDTH'b`GYRO_SENS_COEFF;
+        
+        localparam ACC_INT_MSB_INDEX = `ACC_SENS_COEFF_WIDTH + `ACC_INT_WIDTH;
+        localparam ACC_FRACT_LSB_INDEX = `ACC_SENS_COEFF_WIDTH - `ACC_FRACT_WIDTH;
+        
+        localparam GYRO_INT_MSB_INDEX = `GYRO_SENS_COEFF_WIDTH + `GYRO_INT_WIDTH;
+        localparam GYRO_FRACT_LSB_INDEX = `GYRO_SENS_COEFF_WIDTH - `GYRO_FRACT_WIDTH;
+        
+        assign a_x = a_x_temp[ACC_INT_MSB_INDEX: ACC_FRACT_LSB_INDEX];
+        assign a_y = a_y_temp[ACC_INT_MSB_INDEX: ACC_FRACT_LSB_INDEX];
+        assign a_z = a_z_temp[ACC_INT_MSB_INDEX: ACC_FRACT_LSB_INDEX];
+        
+        assign w_x = w_x_temp[GYRO_INT_MSB_INDEX: GYRO_FRACT_LSB_INDEX];
+        assign w_y = w_y_temp[GYRO_INT_MSB_INDEX: GYRO_FRACT_LSB_INDEX];
+        assign w_z = w_z_temp[GYRO_INT_MSB_INDEX: GYRO_FRACT_LSB_INDEX];
+    end
+        
+    // ---- Process sensor data - End ----
+    
     // ---- Madgwick control path - Start ----
     
     reg start;
     reg done;
     
-     typedef enum reg [1:0] {
+     typedef enum reg [2:0] {
         IDLE,
+        PROC_SENS_DATA,
         START,
         WAIT_FOR_RESULT,
         DONE
@@ -139,7 +177,16 @@ module madgwick_top(
         next_state = state;
         case (state)
             IDLE: begin
-                if (start) next_state = START;
+                if (start) begin
+                    if (`PROC_SENS_DATA) begin
+                        next_state = PROC_SENS_DATA;
+                    end else begin
+                        next_state = START;
+                    end
+                end
+            end
+            PROC_SENS_DATA: begin
+                next_state = START;
             end
             START: begin
                 if (valid_in_madgwick && ready_in_madgwick) next_state = WAIT_FOR_RESULT;
@@ -160,12 +207,29 @@ module madgwick_top(
             rst_n_madgwick <= 'b0;  // Reset madgwick module
             valid_in_madgwick <= 'b0;
             ready_out_madgwick <= 'b0;
+            
+            if (`PROC_SENS_DATA) begin
+                a_x_sens <= 16'b0;
+                a_y_sens <= 16'b0;
+                a_z_sens <= 16'b0;
+                w_x_sens <= 16'b0;
+                w_y_sens <= 16'b0;
+                w_z_sens <= 16'b0;
+            end
         end else begin
             rst_n_madgwick <= 'b1;  // De-assert madgwick rst_n flag
         
             case (state)
                 IDLE: begin
                     done <= 1'b0;
+                end
+                PROC_SENS_DATA: begin
+                    a_x_temp <= {a_x_sens, `ACC_FRACT_WIDTH'b0} * acc_sens_coeff;
+                    a_y_temp <= {a_y_sens, `ACC_FRACT_WIDTH'b0} * acc_sens_coeff;
+                    a_z_temp <= {a_z_sens, `ACC_FRACT_WIDTH'b0} * acc_sens_coeff;
+                    w_x_temp <= {w_x_sens, `GYRO_FRACT_WIDTH'b0} * acc_sens_coeff;
+                    w_y_temp <= {w_y_sens, `GYRO_FRACT_WIDTH'b0} * acc_sens_coeff;
+                    w_z_temp <= {w_z_sens, `GYRO_FRACT_WIDTH'b0} * acc_sens_coeff;
                 end
                 START: begin
                     valid_in_madgwick <= 1'b1;
@@ -244,19 +308,35 @@ module madgwick_top(
             if (valid_wb && !ack_o) begin
                 ack_o <= 1'b1; // Acknowledge the cycle
                 if (we_i) begin
-                    case (adr_i)
-                        'h00: begin   // Decode control register
-                            enable <= dat_i[0];
-                            start <= dat_i[1];
-                            int_enable <= dat_i[3];
-                        end   
-                        6'h04: a_x <= dat_i[`ACC_WIDTH-1:0];   // Accel data input
-                        6'h08: a_y <= dat_i[`ACC_WIDTH-1:0];
-                        6'h0c: a_z <= dat_i[`ACC_WIDTH-1:0];
-                        6'h10: w_x <= dat_i[`GYRO_WIDTH-1:0];   // Gyro data input
-                        6'h14: w_y <= dat_i[`GYRO_WIDTH-1:0];
-                        6'h18: w_z <= dat_i[`GYRO_WIDTH-1:0];
-                    endcase
+                    if (`PROC_SENS_DATA) begin
+                        case (adr_i)
+                            'h00: begin   // Decode control register
+                                enable <= dat_i[0];
+                                start <= dat_i[1];
+                                int_enable <= dat_i[3];
+                            end
+                            6'h04: a_x_sens <= dat_i[15:0];   // Accel sensor data input
+                            6'h08: a_y_sens <= dat_i[15:0];
+                            6'h0c: a_z_sens <= dat_i[15:0];
+                            6'h10: w_x_sens <= dat_i[15:0];   // Gyro sensor data input
+                            6'h14: w_y_sens <= dat_i[15:0];
+                            6'h18: w_z_sens <= dat_i[15:0];
+                        endcase
+                    end else begin
+                        case (adr_i)
+                            'h00: begin   // Decode control register
+                                enable <= dat_i[0];
+                                start <= dat_i[1];
+                                int_enable <= dat_i[3];
+                            end
+                            6'h04: a_x <= dat_i[`ACC_WIDTH-1:0];   // Accel data input
+                            6'h08: a_y <= dat_i[`ACC_WIDTH-1:0];
+                            6'h0c: a_z <= dat_i[`ACC_WIDTH-1:0];
+                            6'h10: w_x <= dat_i[`GYRO_WIDTH-1:0];   // Gyro data input
+                            6'h14: w_y <= dat_i[`GYRO_WIDTH-1:0];
+                            6'h18: w_z <= dat_i[`GYRO_WIDTH-1:0];
+                        endcase
+                    end
                 end else begin
                     case (adr_i)
                         6'h00: dat_o <= ctrl_reg;    // Send control register

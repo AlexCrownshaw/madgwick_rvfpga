@@ -84,14 +84,31 @@
 
 %% Parameters
 % Input data properties
-DATA_RANGE = 1000;
+DATA_RANGE = 3000;
 INPUT_DATA_FILE_PATH = "processing\Data\mpu6050_data\MPU6050_ESP32_10000_points.csv";
+% INPUT_DATA_FILE_PATH = "processing\Data\mpu6050_data\MPU6050_data_20240813_144759\data.csv";
+
 data_in = readtable(INPUT_DATA_FILE_PATH);
 data_in = data_in(1:DATA_RANGE, :);
 
 REF_DATA_PATH = "processing\Data\filtered_data\filtered_output_23-06-24_16-47-37.csv";
 data_out_ref = readtable(REF_DATA_PATH);
 data_out_ref = data_out_ref(1:DATA_RANGE, :);
+
+SIM_DATA_NAME = "wider_mag_sqr";
+
+global PROC_SENS_DATA
+PROC_SENS_DATA = 1;
+
+global ACC_SENS_COEFF_VAL
+global ACC_SENS_COEFF_WIDTH
+ACC_SENS_COEFF_VAL = 1/4096*9.81;
+ACC_SENS_COEFF_WIDTH = 16;
+
+global GYRO_SENS_COEFF_VAL
+global GYRO_SENS_COEFF_WIDTH
+GYRO_SENS_COEFF_VAL = 1/65.5*pi/180;
+GYRO_SENS_COEFF_WIDTH = 16;
 
 global ACC_INPUT_RANGE
 ACC_INPUT_RANGE = 2 * 9.81;
@@ -147,12 +164,61 @@ Q_INT_WIDTH = 2;
 Q_FRACT_WIDTH = 14;
 Q_WIDTH = Q_INT_WIDTH + Q_FRACT_WIDTH;
 
-% global Q_HAT_DOT_TRUNC_WIDTH
-% global Q_HAT_DOT_TRUNC_INT_WIDTH
-% global Q_HAT_DOT_TRUNC_FRACT_WIDTH
-% Q_HAT_DOT_TRUNC_INT_WIDTH = 8;
-% Q_HAT_DOT_TRUNC_FRACT_WIDTH = 8;
-% Q_HAT_DOT_TRUNC_WIDTH = Q_HAT_DOT_TRUNC_INT_WIDTH + Q_HAT_DOT_TRUNC_FRACT_WIDTH;
+%% New config
+% 
+% global ACC_INPUT_RANGE
+% ACC_INPUT_RANGE = 2 * 9.81;
+% global GYRO_INPUT_RANGE
+% GYRO_INPUT_RANGE = 500 * pi/180;
+% 
+% global ACC_INT_WIDTH
+% global ACC_FRACT_WIDTH
+% global ACC_WIDTH
+% ACC_INT_WIDTH = 5;
+% ACC_FRACT_WIDTH = 6;
+% ACC_WIDTH = ACC_INT_WIDTH + ACC_FRACT_WIDTH;
+% 
+% global GYRO_INT_WIDTH
+% global GYRO_FRACT_WIDTH
+% global GYRO_WIDTH
+% GYRO_INT_WIDTH = 6;
+% GYRO_FRACT_WIDTH = 8;
+% GYRO_WIDTH = GYRO_INT_WIDTH + GYRO_FRACT_WIDTH;
+% 
+% global ACC_MAG_SQR_INT_WIDTH
+% global ACC_MAG_SQR_FRACT_WIDTH
+% global ACC_MAG_SQR_WIDTH
+% ACC_MAG_SQR_INT_WIDTH = 12;
+% ACC_MAG_SQR_FRACT_WIDTH = 8;
+% ACC_MAG_SQR_WIDTH = ACC_MAG_SQR_INT_WIDTH + ACC_MAG_SQR_FRACT_WIDTH;
+% 
+% global Q_HAT_DOT_WIDTH;
+% global Q_HAT_DOT_INT_WIDTH;
+% global Q_HAT_DOT_FRACT_WIDTH;
+% Q_HAT_DOT_INT_WIDTH = 8;
+% Q_HAT_DOT_FRACT_WIDTH = 8;
+% Q_HAT_DOT_WIDTH = Q_HAT_DOT_INT_WIDTH + Q_HAT_DOT_FRACT_WIDTH;
+% 
+% global Q_HAT_DOT_MAG_SQR_INT_WIDTH
+% global Q_HAT_DOT_MAG_SQR_FRACT_WIDTH
+% global Q_HAT_DOT_MAG_SQR_WIDTH
+% Q_HAT_DOT_MAG_SQR_INT_WIDTH = 8;
+% Q_HAT_DOT_MAG_SQR_FRACT_WIDTH = 16;
+% Q_HAT_DOT_MAG_SQR_WIDTH = Q_HAT_DOT_MAG_SQR_INT_WIDTH + Q_HAT_DOT_MAG_SQR_FRACT_WIDTH;
+% 
+% global Q_MAG_SQR_INT_WIDTH
+% global Q_MAG_SQR_FRACT_WIDTH
+% global Q_MAG_SQR_WIDTH
+% Q_MAG_SQR_INT_WIDTH = 6;
+% Q_MAG_SQR_FRACT_WIDTH = 8;
+% Q_MAG_SQR_WIDTH = Q_MAG_SQR_INT_WIDTH + Q_MAG_SQR_FRACT_WIDTH;
+% 
+% global Q_INT_WIDTH
+% global Q_FRACT_WIDTH
+% global Q_WIDTH
+% Q_INT_WIDTH = 2;
+% Q_FRACT_WIDTH = 14;
+% Q_WIDTH = Q_INT_WIDTH + Q_FRACT_WIDTH;
 
 %% Constants
 global DELTA_T
@@ -192,7 +258,7 @@ for i = 1:height(data_in)
 end
 
 sim_data = array2table(data_out, "VariableNames", ["q_w", "q_x", "q_y", "q_z"]);
-writetable(sim_data, "processing/Data/MATLAB_sim_data/madgwick_sim_data.csv")
+writetable(sim_data, sprintf("processing/Data/MATLAB_sim_data/madgwick_sim_data_%s.csv", SIM_DATA_NAME))
 
 create_header_file();
 
@@ -228,6 +294,11 @@ close all
 function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
 
     % Global imports
+    global PROC_SENS_DATA
+    global ACC_SENS_COEFF_VAL
+    global ACC_SENS_COEFF_WIDTH
+    global GYRO_SENS_COEFF_VAL
+    global GYRO_SENS_COEFF_WIDTH
     global ACC_FRACT_WIDTH
     global ACC_WIDTH
     global GYRO_FRACT_WIDTH
@@ -242,9 +313,6 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     global Q_MAG_SQR_WIDTH
     global Q_FRACT_WIDTH
     global Q_WIDTH
-    % global Q_HAT_DOT_TRUNC_WIDTH
-    % global Q_HAT_DOT_TRUNC_INT_WIDTH
-    % global Q_HAT_DOT_TRUNC_FRACT_WIDTH
     global DELTA_T
     global BETA
     global Q_WIDTH
@@ -271,9 +339,6 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     global ACC_NORM_OBJ_FUNC_WIDTH
     global ACC_NORM_OBJ_FUNC_INT_WIDTH
     global ACC_NORM_OBJ_FUNC_FRACT_WIDTH
-    % global Q_HAT_DOT_WIDTH
-    % global Q_HAT_DOT_INT_WIDTH
-    % global Q_HAT_DOT_FRACT_WIDTH
     global DELTA_T_BIN
     global DELTA_T_WIDTH
     global DELTA_T_INT_WIDTH
@@ -285,6 +350,8 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     global Q_TEMP_WIDTH
     global Q_TEMP_INT_WIDTH
     global Q_TEMP_FRACT_WIDTH
+    global ACC_SENS_COEFF
+    global GYRO_SENS_COEFF
 
     % Expand inputs
     q_w_prev_fix = q_prev_fix(1);
@@ -292,13 +359,37 @@ function [q_norm_fix] = madgwickFixedPoint(q_prev_fix, acc_fix, gyro_fix)
     q_y_prev_fix = q_prev_fix(3);
     q_z_prev_fix = q_prev_fix(4);
 
-    acc_x_fix = acc_fix(1);
-    acc_y_fix = acc_fix(2);
-    acc_z_fix = acc_fix(3);
+    acc_sens_coeff_fix = fi(ACC_SENS_COEFF_VAL, 1, ACC_SENS_COEFF_WIDTH, ACC_SENS_COEFF_WIDTH);
+    ACC_SENS_COEFF = acc_sens_coeff_fix.bin;
 
-    gyro_x_fix = gyro_fix(1);
-    gyro_y_fix = gyro_fix(2);
-    gyro_z_fix = gyro_fix(3);
+    gyro_sens_coeff_fix = fi(GYRO_SENS_COEFF_VAL, 1, GYRO_SENS_COEFF_WIDTH, GYRO_SENS_COEFF_WIDTH);
+    GYRO_SENS_COEFF = gyro_sens_coeff_fix.bin;
+
+    if (PROC_SENS_DATA)
+        acc_x_fix_temp = acc_fix(1) * acc_sens_coeff_fix;
+        acc_y_fix_temp = acc_fix(2) * acc_sens_coeff_fix;
+        acc_z_fix_temp = acc_fix(3) * acc_sens_coeff_fix;
+    
+        gyro_x_fix_temp = gyro_fix(1) * gyro_sens_coeff_fix;
+        gyro_y_fix_temp = gyro_fix(2) * gyro_sens_coeff_fix;
+        gyro_z_fix_temp = gyro_fix(3) * gyro_sens_coeff_fix;
+
+        acc_x_fix = fi(double(acc_x_fix_temp), 1, ACC_WIDTH, ACC_FRACT_WIDTH);
+        acc_y_fix = fi(double(acc_y_fix_temp), 1, ACC_WIDTH, ACC_FRACT_WIDTH);
+        acc_z_fix = fi(double(acc_z_fix_temp), 1, ACC_WIDTH, ACC_FRACT_WIDTH);
+
+        gyro_x_fix = fi(double(gyro_x_fix_temp), 1, GYRO_WIDTH, GYRO_FRACT_WIDTH);
+        gyro_y_fix = fi(double(gyro_y_fix_temp), 1, GYRO_WIDTH, GYRO_FRACT_WIDTH);
+        gyro_z_fix = fi(double(gyro_z_fix_temp), 1, GYRO_WIDTH, GYRO_FRACT_WIDTH);
+    else
+        acc_x_fix = acc_fix(1);
+        acc_y_fix = acc_fix(2);
+        acc_z_fix = acc_fix(3);
+    
+        gyro_x_fix = gyro_fix(1);
+        gyro_y_fix = gyro_fix(2);
+        gyro_z_fix = gyro_fix(3);
+    end
 
     % Auxiliary variables to avoid repeated calculations
     q_w_half_fix = bitsra(q_w_prev_fix, 1);  % Arithmetic bit shift right by 1 to half value 
@@ -529,6 +620,11 @@ end
 %% Verilog Header File Generation Function
 function [] = create_header_file()
 
+    global PROC_SENS_DATA
+    global ACC_SENS_COEFF
+    global ACC_SENS_COEFF_WIDTH
+    global GYRO_SENS_COEFF
+    global GYRO_SENS_COEFF_WIDTH
     global BETA_BIN
     global BETA_WIDTH
     global BETA_INT_WIDTH
@@ -574,15 +670,17 @@ function [] = create_header_file()
     global Q_HAT_DOT_WIDTH
     global Q_HAT_DOT_INT_WIDTH
     global Q_HAT_DOT_FRACT_WIDTH
-    % global Q_HAT_DOT_TRUNC_WIDTH
-    % global Q_HAT_DOT_TRUNC_INT_WIDTH
-    % global Q_HAT_DOT_TRUNC_FRACT_WIDTH
     global Q_HAT_DOT_MAG_SQR_WIDTH
     global Q_HAT_DOT_MAG_SQR_INT_WIDTH
     global Q_HAT_DOT_MAG_SQR_FRACT_WIDTH
 
 
     defines = {
+        sprintf('`define PROC_SENS_DATA %d\n', PROC_SENS_DATA)
+        sprintf('`define ACC_SENS_COEFF %s\n', ACC_SENS_COEFF)
+        sprintf('`define ACC_SENS_COEFF_WIDTH %d\n', ACC_SENS_COEFF_WIDTH) 
+        sprintf('`define GYRO_SENS_COEFF %s\n', GYRO_SENS_COEFF) 
+        sprintf('`define GYRO_SENS_COEFF_WIDTH %d\n\n', GYRO_SENS_COEFF_WIDTH) 
         sprintf('`define BETA %s\n', BETA_BIN)
         sprintf('`define BETA_WIDTH %d\n', BETA_WIDTH)
         sprintf('`define BETA_INT_WIDTH %d\n', BETA_INT_WIDTH)
@@ -627,9 +725,6 @@ function [] = create_header_file()
         sprintf('`define Q_HAT_DOT_WIDTH %d\n', Q_HAT_DOT_WIDTH)
         sprintf('`define Q_HAT_DOT_INT_WIDTH %d\n', Q_HAT_DOT_INT_WIDTH)
         sprintf('`define Q_HAT_DOT_FRACT_WIDTH %d\n\n', Q_HAT_DOT_FRACT_WIDTH)
-        % sprintf('`define Q_HAT_DOT_TRUNC_WIDTH %d\n', Q_HAT_DOT_TRUNC_WIDTH)
-        % sprintf('`define Q_HAT_DOT_TRUNC_INT_WIDTH %d\n', Q_HAT_DOT_TRUNC_INT_WIDTH)
-        % sprintf('`define Q_HAT_DOT_TRUNC_FRACT_WIDTH %d\n\n', Q_HAT_DOT_TRUNC_FRACT_WIDTH)
         sprintf('`define Q_HAT_DOT_MAG_SQR_WIDTH %d\n', Q_HAT_DOT_MAG_SQR_WIDTH)
         sprintf('`define Q_HAT_DOT_MAG_SQR_INT_WIDTH %d\n', Q_HAT_DOT_MAG_SQR_INT_WIDTH)
         sprintf('`define Q_HAT_DOT_MAG_SQR_FRACT_WIDTH %d\n\n', Q_HAT_DOT_MAG_SQR_FRACT_WIDTH)
@@ -668,7 +763,7 @@ function generate_test_vectors(data_in)
             word_width = GYRO_WIDTH;
             fract_width = GYRO_FRACT_WIDTH;
         end
-        headerContent = sprintf('%sint %s[%d] = {\n', headerContent, vectorNames{i}, height(data_in));
+        headerContent = sprintf('%sint %s_test_vector[%d] = {\n', headerContent, vectorNames{i}, height(data_in));
         for j = 1:height(data_in)
             value = int(fi(data_in.(vectorNames{i})(j), 1, word_width, fract_width));
             if mod(j, 10) == 1
