@@ -40,7 +40,7 @@
 #define I2C_ERROR_ARBITRATION_LOST -1
 #define I2C_ERROR_NO_ACK -2
 
-#define STD_DELAY 3000
+#define STD_DELAY 100
 
 #define WRITE_ADDR(dir, value) { (*(volatile unsigned *)dir) = (value); }
 #define READ_ADDR(dir) (*(volatile unsigned *)dir)
@@ -84,7 +84,6 @@ int I2C_HAL_init(uint8_t prescale_lo, uint8_t prescale_hi)
 
     return 0;  // Success
 }
-
 
 int I2C_HAL_write(uint8_t slaveAddr, uint8_t regAddr, uint8_t data)
 {
@@ -165,7 +164,7 @@ int I2C_HAL_write(uint8_t slaveAddr, uint8_t regAddr, uint8_t data)
     return 0;
 }
 
-uint8_t I2C_HAL_read(uint8_t slaveAddr, uint8_t regAddr)
+int8_t I2C_HAL_read(uint8_t slaveAddr, uint8_t regAddr)
 {
     I2C_HAL_clear_error(); // Clear previous errors
 
@@ -260,7 +259,7 @@ uint8_t I2C_HAL_read(uint8_t slaveAddr, uint8_t regAddr)
     }
 
     // Step 9: Read the received data
-    uint8_t data = READ_ADDR(I2C_RX_REG_ADDR);
+    int8_t data = READ_ADDR(I2C_RX_REG_ADDR);
 
     // Step 10: Send the STOP condition
     WRITE_ADDR(I2C_COM_REG_ADDR, I2C_STOP_MASK);

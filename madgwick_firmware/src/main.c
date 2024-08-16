@@ -7,44 +7,66 @@
 #endif
 #include <psp_api.h>
 
-#include "madgwick.h"
-#include "test_vectors.h"
+#include "madgwick/madgwick.h"
+// #include "madgwick/test_vectors.h"
+#include "mpu6050/MPU6050.h"
 
 #define INTERRUPT_ENABLE 1
 
-void delay(unsigned int);
+// int main(void)
+// {
+//    uartInit();
 
+//    madgwickInit(INTERRUPT_ENABLE);
+
+//    for (int i = 0; i < (sizeof(ax_test_vector) / sizeof(int)); i++)
+//    {
+      
+//       ax = ax_test_vector[i];
+//       ay = ay_test_vector[i];
+//       az = az_test_vector[i];
+//       wx = wx_test_vector[i];
+//       wy = wy_test_vector[i];
+//       wz = wz_test_vector[i];
+//       madgwickWriteInputVectors();
+
+//       while (!done)
+//       {
+//          delay(1000);
+//       }
+//       done = 0;
+
+//       printfNexys("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", ax, ay, az, wx, wy, wz, q_w, q_x, q_y, q_z);
+//    }
+
+//    return 0;
+// }
 
 int main(void)
 {
    uartInit();
-
    madgwickInit(INTERRUPT_ENABLE);
+   MPU6050_init(F_CLK_400KHZ, AFS_SEL_8G, FS_SEL_500, DLPF_CONFIG_4);
 
-   for (int i = 0; i < (sizeof(ax_test_vector) / sizeof(int)); i++)
+   while (1)
    {
-      
-      ax = ax_test_vector[i];
-      ay = ay_test_vector[i];
-      az = az_test_vector[i];
-      wx = wx_test_vector[i];
-      wy = wy_test_vector[i];
-      wz = wz_test_vector[i];
+      MPU6050_get_raw_sample();
+
+      ax = axRaw;
+      ay = ayRaw;
+      az = azRaw;
+      wx = wxRaw;
+      wy = wxRaw;
+      wz = wzRaw;
+
       madgwickWriteInputVectors();
 
-      while (!done)
+      while (!done)  // Simulate other useful threads of execution
       {
          delay(1000);
       }
       done = 0;
 
-      printfNexys("%d,%d,%d,%d", q_w, q_x, q_y, q_z);
+      printfNexys("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", ax, ay, az, wx, wy, wz, q_w, q_x, q_y, q_z);
    }
-
-   return 0;
-}
-
-void delay(unsigned int count)
-{
-   for(int i = 0; i < count; i++);
 }
