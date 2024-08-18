@@ -8,7 +8,7 @@
 #include <psp_api.h>
 
 #include "madgwick/madgwick.h"
-// #include "madgwick/test_vectors.h"
+#include "madgwick/test_vectors.h"
 #include "mpu6050/MPU6050.h"
 
 #define INTERRUPT_ENABLE 1
@@ -46,7 +46,7 @@ int main(void)
 {
    uartInit();
    madgwickInit(INTERRUPT_ENABLE);
-   MPU6050_init(F_CLK_400KHZ, AFS_SEL_8G, FS_SEL_500, DLPF_CONFIG_4);
+   MPU6050_init(F_CLK_100KHZ, AFS_SEL_8G, FS_SEL_500, DLPF_CONFIG_4);
 
    while (1)
    {
